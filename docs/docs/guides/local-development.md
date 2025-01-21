@@ -8,29 +8,53 @@ This guide covers setting up and working with Eliza in a development environment
 
 ## Prerequisites
 
-Before you begin, ensure you have:
+You can develop either in a **dev container** or directly on your **host machine**.
+
+### Requirements:
 
 ```bash
 # Required
-Node.js 23+
-pnpm
+Node.js (v23+; not required if using the dev container)
+pnpm (not required if using the dev container)
 Git
 
-# Optional but recommended
-VS Code
-Docker (for database development)
-CUDA Toolkit (for GPU acceleration)
+VS Code (mandatory for using the dev container or coding)
+Docker (mandatory for using the dev container or database development)
+CUDA Toolkit (optional, for GPU acceleration)
 ```
 
 ## Initial Setup
 
 ### 1. Repository Setup
 
+Clone the repository and navigate to the project directory:
+
 ```bash
 # Clone the repository
-git clone https://github.com/ai16z/eliza.git
+git clone https://github.com/elizaos/eliza.git
 cd eliza
+```
 
+### 2. (Optional) Run Inside a Dev Container
+
+1. Open the project directory in **VS Code**:
+   ```bash
+   code .
+   ```
+
+2. In the bottom-right corner, you'll see a popup:
+   **"Reopen in Container"** – Click it.
+
+   - If you don't see the popup or miss it, press `F1`, type:
+     **"Reopen in Container"**, and select it.
+
+3. Wait for the container to initialize.
+
+4. Open a terminal (hotkey: `Ctrl+Shift+\``) and run commands from the **container terminal** going forward.
+
+### 3. Setup dependencies
+
+```bash
 # Install dependencies
 pnpm install
 
@@ -38,7 +62,7 @@ pnpm install
 pnpm install --include=optional sharp
 ```
 
-### 2. Environment Configuration
+### 4. Environment Configuration
 
 Create your development environment file:
 
@@ -51,12 +75,9 @@ Configure essential development variables:
 ```bash
 # Minimum required for local development
 OPENAI_API_KEY=sk-*           # Optional, for OpenAI features
-X_SERVER_URL=                 # Leave blank for local inference
-XAI_API_KEY=                 # Leave blank for local inference
-XAI_MODEL=meta-llama/Llama-3.1-7b-instruct  # Local model
 ```
 
-### 3. Local Model Setup
+### 5. Local Model Setup
 
 For local inference without API dependencies:
 
@@ -100,14 +121,20 @@ pnpm run lint          # Lint code
 # Open a terminal and Start with specific character
 pnpm run dev --characters="characters/my-character.json"
 ```
+
 ```
 # Open a 2nd terminal and start the client
 pnpm start:client
 ```
 
+NOTE: If you are using devcontainer, add --host argument to client:
+```
+pnpm start:client --host
+```
+
 Look for the message:
 `  ➜  Local:   http://localhost:5173/`
-Click on that link or open a browser window to that location.  Once you do that you should see the chat interface connect with the system and you can start interacting with your character.
+Click on that link or open a browser window to that location. Once you do that you should see the chat interface connect with the system and you can start interacting with your character.
 
 
 ## Database Development
@@ -115,7 +142,7 @@ Click on that link or open a browser window to that location.  Once you do that 
 ### SQLite (Recommended for Development)
 
 ```typescript
-import { SqliteDatabaseAdapter } from "@ai16z/eliza/adapters";
+import { SqliteDatabaseAdapter } from "@elizaos/core/adapters";
 import Database from "better-sqlite3";
 
 const db = new SqliteDatabaseAdapter(new Database("./dev.db"));
@@ -124,7 +151,7 @@ const db = new SqliteDatabaseAdapter(new Database("./dev.db"));
 ### In-Memory Database (for Testing)
 
 ```typescript
-import { SqlJsDatabaseAdapter } from "@ai16z/eliza/adapters";
+import { SqlJsDatabaseAdapter } from "@elizaos/core/adapters";
 
 const db = new SqlJsDatabaseAdapter(new Database(":memory:"));
 ```
@@ -164,25 +191,25 @@ pnpm test:sqljs
 ### Writing Tests
 
 ```typescript
-import { runAiTest } from "@ai16z/eliza/test_resources";
+import { runAiTest } from "@elizaos/core/test_resources";
 
 describe("Feature Test", () => {
-  beforeEach(async () => {
-    // Setup test environment
-  });
-
-  it("should perform expected behavior", async () => {
-    const result = await runAiTest({
-      messages: [
-        {
-          user: "user1",
-          content: { text: "test message" },
-        },
-      ],
-      expected: "expected response",
+    beforeEach(async () => {
+        // Setup test environment
     });
-    expect(result.success).toBe(true);
-  });
+
+    it("should perform expected behavior", async () => {
+        const result = await runAiTest({
+            messages: [
+                {
+                    user: "user1",
+                    content: { text: "test message" },
+                },
+            ],
+            expected: "expected response",
+        });
+        expect(result.success).toBe(true);
+    });
 });
 ```
 
@@ -192,14 +219,14 @@ describe("Feature Test", () => {
 
 ```typescript
 // plugins/my-plugin/src/index.ts
-import { Plugin } from "@ai16z/eliza/types";
+import { Plugin } from "@elizaos/core/types";
 
 export const myPlugin: Plugin = {
-  name: "my-plugin",
-  description: "My custom plugin",
-  actions: [],
-  evaluators: [],
-  providers: [],
+    name: "my-plugin",
+    description: "My custom plugin",
+    actions: [],
+    evaluators: [],
+    providers: [],
 };
 ```
 
@@ -208,16 +235,16 @@ export const myPlugin: Plugin = {
 ```typescript
 // plugins/my-plugin/src/actions/myAction.ts
 export const myAction: Action = {
-  name: "MY_ACTION",
-  similes: ["SIMILAR_ACTION"],
-  validate: async (runtime: IAgentRuntime, message: Memory) => {
-    return true;
-  },
-  handler: async (runtime: IAgentRuntime, message: Memory) => {
-    // Implementation
-    return true;
-  },
-  examples: [],
+    name: "MY_ACTION",
+    similes: ["SIMILAR_ACTION"],
+    validate: async (runtime: IAgentRuntime, message: Memory) => {
+        return true;
+    },
+    handler: async (runtime: IAgentRuntime, message: Memory) => {
+        // Implementation
+        return true;
+    },
+    examples: [],
 };
 ```
 
@@ -229,20 +256,20 @@ Create `.vscode/launch.json`:
 
 ```json
 {
-  "version": "0.2.0",
-  "configurations": [
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "Debug Eliza",
-      "skipFiles": ["<node_internals>/**"],
-      "program": "${workspaceFolder}/src/index.ts",
-      "runtimeArgs": ["-r", "ts-node/register"],
-      "env": {
-        "DEBUG": "eliza:*"
-      }
-    }
-  ]
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Debug Eliza",
+            "skipFiles": ["<node_internals>/**"],
+            "program": "${workspaceFolder}/src/index.ts",
+            "runtimeArgs": ["-r", "ts-node/register"],
+            "env": {
+                "DEBUG": "eliza:*"
+            }
+        }
+    ]
 }
 ```
 
@@ -261,9 +288,9 @@ DEBUG=eliza:*
 const debug = require("debug")("eliza:dev");
 
 debug("Operation details: %O", {
-  operation: "functionName",
-  params: parameters,
-  result: result,
+    operation: "functionName",
+    params: parameters,
+    result: result,
 });
 ```
 
@@ -280,13 +307,13 @@ NODE_OPTIONS="--max-old-space-size=8192" pnpm run dev
 
 ```json
 {
-  "name": "DevBot",
-  "description": "Development testing bot",
-  "modelProvider": "openai",
-  "settings": {
-    "debug": true,
-    "logLevel": "debug"
-  }
+    "name": "DevBot",
+    "description": "Development testing bot",
+    "modelProvider": "openai",
+    "settings": {
+        "debug": true,
+        "logLevel": "debug"
+    }
 }
 ```
 
@@ -294,15 +321,15 @@ NODE_OPTIONS="--max-old-space-size=8192" pnpm run dev
 
 ```typescript
 class CustomService extends Service {
-  static serviceType = ServiceType.CUSTOM;
+    static serviceType = ServiceType.CUSTOM;
 
-  async initialize() {
-    // Setup code
-  }
+    async initialize() {
+        // Setup code
+    }
 
-  async process(input: any): Promise<any> {
-    // Service logic
-  }
+    async process(input: any): Promise<any> {
+        // Service logic
+    }
 }
 ```
 
@@ -311,20 +338,20 @@ class CustomService extends Service {
 ```typescript
 // Local model configuration
 const localModel = {
-  modelProvider: "llamalocal",
-  settings: {
-    modelPath: "./models/llama-7b.gguf",
-    contextSize: 8192,
-  },
+    modelProvider: "llamalocal",
+    settings: {
+        modelPath: "./models/llama-7b.gguf",
+        contextSize: 8192,
+    },
 };
 
 // Cloud model configuration
 const cloudModel = {
-  modelProvider: "openai",
-  settings: {
-    model: "gpt-4o-mini",
-    temperature: 0.7,
-  },
+    modelProvider: "openai",
+    settings: {
+        model: "gpt-4o-mini",
+        temperature: 0.7,
+    },
 };
 ```
 
@@ -345,14 +372,14 @@ CUDA_PATH=/usr/local/cuda  # Windows: C:\Program Files\NVIDIA GPU Computing Tool
 
 ```typescript
 class MemoryManager {
-  private cache = new Map();
-  private maxSize = 1000;
+    private cache = new Map();
+    private maxSize = 1000;
 
-  async cleanup() {
-    if (this.cache.size > this.maxSize) {
-      // Implement cleanup logic
+    async cleanup() {
+        if (this.cache.size > this.maxSize) {
+            // Implement cleanup logic
+        }
     }
-  }
 }
 ```
 
@@ -399,20 +426,20 @@ pnpm run analyze
 
 1. Code Organization
 
-   - Place custom actions in `custom_actions/`
-   - Keep character files in `characters/`
-   - Store test data in `tests/fixtures/`
+    - Place custom actions in `custom_actions/`
+    - Keep character files in `characters/`
+    - Store test data in `tests/fixtures/`
 
 2. Testing Strategy
 
-   - Write unit tests for new features
-   - Use integration tests for plugins
-   - Test with multiple model providers
+    - Write unit tests for new features
+    - Use integration tests for plugins
+    - Test with multiple model providers
 
 3. Git Workflow
-   - Create feature branches
-   - Follow conventional commits
-   - Keep PRs focused
+    - Create feature branches
+    - Follow conventional commits
+    - Keep PRs focused
 
 ## Additional Tools
 
@@ -446,5 +473,5 @@ npx knowledge2character <character-file> <knowledge-file>
 
 - [Configuration Guide](./configuration.md) for setup details
 - [Advanced Usage](./advanced.md) for complex features
-- [API Documentation](/api) for complete API reference
-- [Contributing Guide](../community/contributing.md) for contribution guidelines
+- [API Documentation](../../api/index.md) for complete API reference
+- [Contributing Guide](../contributing.md) for contribution guidelines

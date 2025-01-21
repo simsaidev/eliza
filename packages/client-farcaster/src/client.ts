@@ -1,6 +1,7 @@
-import { IAgentRuntime, elizaLogger } from "@ai16z/eliza";
-import { NeynarAPIClient, isApiErrorResponse } from "@neynar/nodejs-sdk";
-import { NeynarCastResponse, Cast, Profile, FidRequest, CastId } from "./types";
+import { type IAgentRuntime, elizaLogger } from "@elizaos/core";
+import { type NeynarAPIClient, isApiErrorResponse } from "@neynar/nodejs-sdk";
+import type { NeynarCastResponse, Cast, Profile, FidRequest, CastId } from "./types";
+import type { FarcasterConfig } from "./environment";
 
 export class FarcasterClient {
     runtime: IAgentRuntime;
@@ -8,6 +9,7 @@ export class FarcasterClient {
     signerUuid: string;
     cache: Map<string, any>;
     lastInteractionTimestamp: Date;
+    farcasterConfig: FarcasterConfig;
 
     constructor(opts: {
         runtime: IAgentRuntime;
@@ -16,12 +18,14 @@ export class FarcasterClient {
         neynar: NeynarAPIClient;
         signerUuid: string;
         cache: Map<string, any>;
+        farcasterConfig: FarcasterConfig;
     }) {
         this.cache = opts.cache;
         this.runtime = opts.runtime;
         this.neynar = opts.neynar;
         this.signerUuid = opts.signerUuid;
         this.lastInteractionTimestamp = new Date();
+        this.farcasterConfig = opts.farcasterConfig;
     }
 
     async loadCastFromNeynarResponse(neynarResponse: any): Promise<Cast> {
@@ -63,10 +67,10 @@ export class FarcasterClient {
             }
         } catch (err) {
             if (isApiErrorResponse(err)) {
-                elizaLogger.error('Neynar error: ', err.response.data);
+                elizaLogger.error("Neynar error: ", err.response.data);
                 throw err.response.data;
             } else {
-                elizaLogger.error('Error: ', err);
+                elizaLogger.error("Error: ", err);
                 throw err;
             }
         }
@@ -172,7 +176,7 @@ export class FarcasterClient {
 
         const result = await this.neynar.fetchBulkUsers({ fids: [fid] });
         if (!result.users || result.users.length < 1) {
-            elizaLogger.error('Error fetching user by fid');
+            elizaLogger.error("Error fetching user by fid");
 
             throw "getProfile ERROR";
         }

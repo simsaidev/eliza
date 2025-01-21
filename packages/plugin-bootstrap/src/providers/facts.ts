@@ -2,9 +2,9 @@ import {
     embed,
     MemoryManager,
     formatMessages,
-    AgentRuntime as IAgentRuntime,
-} from "@ai16z/eliza";
-import type { Memory, Provider, State } from "@ai16z/eliza";
+    type AgentRuntime as IAgentRuntime,
+} from "@elizaos/core";
+import type { Memory, Provider, State } from "@elizaos/core";
 import { formatFacts } from "../evaluators/fact.ts";
 
 const factsProvider: Provider = {

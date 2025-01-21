@@ -1,15 +1,15 @@
-import { IAgentRuntime } from "@ai16z/eliza";
+import type { IAgentRuntime } from "@elizaos/core";
 import { z } from "zod";
 
 // Add ENV variable at the top
-let ENV: string = "testnet";
+let ENV = "testnet";
 
 export const nearEnvSchema = z.object({
     NEAR_WALLET_SECRET_KEY: z.string().min(1, "Wallet secret key is required"),
     NEAR_WALLET_PUBLIC_KEY: z.string().min(1, "Wallet public key is required"),
     NEAR_ADDRESS: z.string().min(1, "Near address is required"),
-    SLIPPAGE: z.string().min(1, "Slippage is required"),
-    RPC_URL: z.string().min(1, "RPC URL is required"),
+    NEAR_SLIPPAGE: z.string().min(1, "Slippage is required"),
+    NEAR_RPC_URL: z.string().min(1, "RPC URL is required"),
     networkId: z.string(),
     nodeUrl: z.string(),
     walletUrl: z.string(),
@@ -30,41 +30,41 @@ export function getConfig(
 ) {
     ENV = env || "testnet";
     switch (env) {
-        case 'mainnet':
+        case "mainnet":
             return {
-                networkId: 'mainnet',
-                nodeUrl: 'https://rpc.mainnet.near.org',
-                walletUrl: 'https://wallet.near.org',
-                WRAP_NEAR_CONTRACT_ID: 'wrap.near',
-                REF_FI_CONTRACT_ID: 'v2.ref-finance.near',
-                REF_TOKEN_ID: 'token.v2.ref-finance.near',
-                indexerUrl: 'https://indexer.ref.finance',
-                explorerUrl: 'https://testnet.nearblocks.io',
-                REF_DCL_SWAP_CONTRACT_ID: 'dclv2.ref-labs.near',
+                networkId: "mainnet",
+                nodeUrl: "https://rpc.mainnet.near.org",
+                walletUrl: "https://wallet.near.org",
+                WRAP_NEAR_CONTRACT_ID: "wrap.near",
+                REF_FI_CONTRACT_ID: "v2.ref-finance.near",
+                REF_TOKEN_ID: "token.v2.ref-finance.near",
+                indexerUrl: "https://indexer.ref.finance",
+                explorerUrl: "https://testnet.nearblocks.io",
+                REF_DCL_SWAP_CONTRACT_ID: "dclv2.ref-labs.near",
             };
-        case 'testnet':
+        case "testnet":
             return {
-                networkId: 'testnet',
-                nodeUrl: 'https://rpc.testnet.near.org',
-                walletUrl: 'https://wallet.testnet.near.org',
-                indexerUrl: 'https://testnet-indexer.ref-finance.com',
-                WRAP_NEAR_CONTRACT_ID: 'wrap.testnet',
-                REF_FI_CONTRACT_ID: 'ref-finance-101.testnet',
-                REF_TOKEN_ID: 'ref.fakes.testnet',
-                explorerUrl: 'https://testnet.nearblocks.io',
-                REF_DCL_SWAP_CONTRACT_ID: 'dclv2.ref-dev.testnet',
+                networkId: "testnet",
+                nodeUrl: "https://rpc.testnet.near.org",
+                walletUrl: "https://wallet.testnet.near.org",
+                indexerUrl: "https://testnet-indexer.ref-finance.com",
+                WRAP_NEAR_CONTRACT_ID: "wrap.testnet",
+                REF_FI_CONTRACT_ID: "ref-finance-101.testnet",
+                REF_TOKEN_ID: "ref.fakes.testnet",
+                explorerUrl: "https://testnet.nearblocks.io",
+                REF_DCL_SWAP_CONTRACT_ID: "dclv2.ref-dev.testnet",
             };
         default:
             return {
-                networkId: 'mainnet',
-                nodeUrl: 'https://rpc.mainnet.near.org',
-                walletUrl: 'https://wallet.near.org',
-                REF_FI_CONTRACT_ID: 'v2.ref-finance.near',
-                WRAP_NEAR_CONTRACT_ID: 'wrap.near',
-                REF_TOKEN_ID: 'token.v2.ref-finance.near',
-                indexerUrl: 'https://indexer.ref.finance',
-                explorerUrl: 'https://nearblocks.io',
-                REF_DCL_SWAP_CONTRACT_ID: 'dclv2.ref-labs.near',
+                networkId: "mainnet",
+                nodeUrl: "https://rpc.mainnet.near.org",
+                walletUrl: "https://wallet.near.org",
+                REF_FI_CONTRACT_ID: "v2.ref-finance.near",
+                WRAP_NEAR_CONTRACT_ID: "wrap.near",
+                REF_TOKEN_ID: "token.v2.ref-finance.near",
+                indexerUrl: "https://indexer.ref.finance",
+                explorerUrl: "https://nearblocks.io",
+                REF_DCL_SWAP_CONTRACT_ID: "dclv2.ref-labs.near",
             };
     }
 }
@@ -73,7 +73,9 @@ export async function validateNearConfig(
     runtime: IAgentRuntime
 ): Promise<NearConfig> {
     try {
-        const envConfig = getConfig(runtime.getSetting("NEAR_ENV") ?? undefined);
+        const envConfig = getConfig(
+            runtime.getSetting("NEAR_ENV") ?? undefined
+        );
         const config = {
             NEAR_WALLET_SECRET_KEY:
                 runtime.getSetting("NEAR_WALLET_SECRET_KEY") ||
@@ -84,9 +86,9 @@ export async function validateNearConfig(
                 process.env.NEAR_WALLET_PUBLIC_KEY,
             NEAR_ADDRESS:
                 runtime.getSetting("NEAR_ADDRESS") || process.env.NEAR_ADDRESS,
-            SLIPPAGE: runtime.getSetting("SLIPPAGE") || process.env.SLIPPAGE,
-            RPC_URL: runtime.getSetting("RPC_URL") || process.env.RPC_URL,
-            ...envConfig // Spread the environment-specific config
+            NEAR_SLIPPAGE: runtime.getSetting("NEAR_SLIPPAGE") || process.env.NEAR_SLIPPAGE,
+            NEAR_RPC_URL: runtime.getSetting("NEAR_RPC_URL") || process.env.NEAR_RPC_URL,
+            ...envConfig, // Spread the environment-specific config
         };
 
         return nearEnvSchema.parse(config);

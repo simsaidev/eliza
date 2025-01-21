@@ -1,17 +1,17 @@
 import { RESTClient } from "../../advanced-sdk-ts/src/rest";
 import {
-    Action,
-    Plugin,
+    type Action,
+    type Plugin,
     elizaLogger,
-    IAgentRuntime,
-    Memory,
-    HandlerCallback,
-    State,
+    type IAgentRuntime,
+    type Memory,
+    type HandlerCallback,
+    type State,
     composeContext,
     generateObject,
     ModelClass,
-    Provider,
-} from "@ai16z/eliza";
+    type Provider,
+} from "@elizaos/core";
 import { advancedTradeTemplate } from "../templates";
 import { isAdvancedTradeContent, AdvancedTradeSchema } from "../types";
 import { readFile } from "fs/promises";
@@ -22,9 +22,9 @@ import fs from "fs";
 import { createArrayCsvWriter } from "csv-writer";
 import {
     OrderSide,
-    OrderConfiguration,
+    type OrderConfiguration,
 } from "../../advanced-sdk-ts/src/rest/types/common-types";
-import { CreateOrderResponse } from "../../advanced-sdk-ts/src/rest/types/orders-types";
+import type { CreateOrderResponse } from "../../advanced-sdk-ts/src/rest/types/orders-types";
 
 // File path setup remains the same
 const __filename = fileURLToPath(import.meta.url);
@@ -34,6 +34,7 @@ const tradeCsvFilePath = path.join(baseDir, "advanced_trades.csv");
 
 const tradeProvider: Provider = {
     get: async (runtime: IAgentRuntime, _message: Memory) => {
+        elizaLogger.debug("Starting tradeProvider function");
         try {
             const client = new RESTClient(
                 runtime.getSetting("COINBASE_API_KEY") ??
@@ -103,6 +104,7 @@ const tradeProvider: Provider = {
 };
 
 export async function appendTradeToCsv(tradeResult: any) {
+    elizaLogger.debug("Starting appendTradeToCsv function");
     try {
         const csvWriter = createArrayCsvWriter({
             path: tradeCsvFilePath,
@@ -139,6 +141,7 @@ async function hasEnoughBalance(
     amount: number,
     side: string
 ): Promise<boolean> {
+    elizaLogger.debug("Starting hasEnoughBalance function");
     try {
         const response = await client.listAccounts({});
         const accounts = JSON.parse(response);
@@ -162,7 +165,7 @@ async function hasEnoughBalance(
             return false;
         }
 
-        const available = parseFloat(account.available_balance.value);
+        const available = Number.parseFloat(account.available_balance.value);
         // Add buffer for fees only on USD purchases
         const requiredAmount = side === "BUY" ? amount * 1.01 : amount;
         elizaLogger.info(
@@ -216,6 +219,7 @@ export const executeAdvancedTradeAction: Action = {
         let client: RESTClient;
 
         // Initialize client
+        elizaLogger.debug("Starting advanced trade client initialization");
         try {
             client = new RESTClient(
                 runtime.getSetting("COINBASE_API_KEY") ??
@@ -237,6 +241,7 @@ export const executeAdvancedTradeAction: Action = {
 
         // Generate trade details
         let tradeDetails;
+        elizaLogger.debug("Starting trade details generation");
         try {
             tradeDetails = await generateObject({
                 runtime,
@@ -276,6 +281,7 @@ export const executeAdvancedTradeAction: Action = {
 
         // Configure order
         let orderConfiguration: OrderConfiguration;
+        elizaLogger.debug("Starting order configuration");
         try {
             if (orderType === "MARKET") {
                 orderConfiguration =
@@ -323,6 +329,7 @@ export const executeAdvancedTradeAction: Action = {
         // Execute trade
         let order: CreateOrderResponse;
         try {
+            elizaLogger.debug("Executing the trade");
             if (
                 !(await hasEnoughBalance(
                     client,

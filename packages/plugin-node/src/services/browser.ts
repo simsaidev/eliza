@@ -1,26 +1,27 @@
-import { generateText, IBrowserService, trimTokens } from "@ai16z/eliza";
-import { parseJSONObjectFromText } from "@ai16z/eliza";
-import { Service } from "@ai16z/eliza";
-import { settings } from "@ai16z/eliza";
-import { IAgentRuntime, ModelClass, ServiceType } from "@ai16z/eliza";
-import { stringToUuid } from "@ai16z/eliza";
+import { generateText, type IBrowserService, trimTokens } from "@elizaos/core";
+import { parseJSONObjectFromText } from "@elizaos/core";
+import { Service } from "@elizaos/core";
+import { settings } from "@elizaos/core";
+import { type IAgentRuntime, ModelClass, ServiceType } from "@elizaos/core";
+import { stringToUuid } from "@elizaos/core";
 import { PlaywrightBlocker } from "@cliqz/adblocker-playwright";
 import CaptchaSolver from "capsolver-npm";
-import { Browser, BrowserContext, chromium, Page } from "playwright";
+import { type Browser, type BrowserContext, chromium, type Page } from "playwright";
+import { elizaLogger } from "@elizaos/core";
 
 async function generateSummary(
     runtime: IAgentRuntime,
     text: string
 ): Promise<{ title: string; description: string }> {
     // make sure text is under 128k characters
-    text = trimTokens(text, 100000, "gpt-4o-mini"); // TODO: clean this up
+    text = await trimTokens(text, 100000, runtime);
 
     const prompt = `Please generate a concise summary for the following text:
-  
+
   Text: """
   ${text}
   """
-  
+
   Respond with a JSON object in the following format:
   \`\`\`json
   {
@@ -169,7 +170,7 @@ export class BrowserService extends Service implements IBrowserService {
 
         try {
             if (!this.context) {
-                console.log(
+                elizaLogger.log(
                     "Browser context not initialized. Call initializeBrowser() first."
                 );
             }
@@ -189,7 +190,7 @@ export class BrowserService extends Service implements IBrowserService {
             const response = await page.goto(url, { waitUntil: "networkidle" });
 
             if (!response) {
-                console.log("Failed to load the page");
+                elizaLogger.error("Failed to load the page");
             }
 
             if (response.status() === 403 || response.status() === 404) {
@@ -216,7 +217,7 @@ export class BrowserService extends Service implements IBrowserService {
             });
             return content;
         } catch (error) {
-            console.error("Error:", error);
+            elizaLogger.error("Error:", error);
             return {
                 title: url,
                 description: "Error, could not fetch content",
@@ -276,7 +277,7 @@ export class BrowserService extends Service implements IBrowserService {
                 }, solution.gRecaptchaResponse);
             }
         } catch (error) {
-            console.error("Error solving CAPTCHA:", error);
+            elizaLogger.error("Error solving CAPTCHA:", error);
         }
     }
 
@@ -312,7 +313,7 @@ export class BrowserService extends Service implements IBrowserService {
         try {
             return await this.fetchPageContent(archiveUrl, runtime);
         } catch (error) {
-            console.error("Error fetching from Internet Archive:", error);
+            elizaLogger.error("Error fetching from Internet Archive:", error);
         }
 
         // Try Google Search as a last resort
@@ -320,8 +321,10 @@ export class BrowserService extends Service implements IBrowserService {
         try {
             return await this.fetchPageContent(googleSearchUrl, runtime);
         } catch (error) {
-            console.error("Error fetching from Google Search:", error);
-            console.error("Failed to fetch content from alternative sources");
+            elizaLogger.error("Error fetching from Google Search:", error);
+            elizaLogger.error(
+                "Failed to fetch content from alternative sources"
+            );
             return {
                 title: url,
                 description:

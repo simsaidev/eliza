@@ -1,4 +1,4 @@
-import { IAgentRuntime, Memory, Provider, State } from "@ai16z/eliza";
+import type { IAgentRuntime, Memory, Provider, State } from "@elizaos/core";
 interface Order {
     userId: string;
     ticker: string;

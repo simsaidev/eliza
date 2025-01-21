@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
-import { defaultCharacter } from "@ai16z/eliza";
+import { defaultCharacter } from "@elizaos/core";
 import { getFlowConnectorInstance } from "../providers/connector.provider";
 import { FlowWalletProvider } from "../providers/wallet.provider";
 

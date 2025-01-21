@@ -34,25 +34,25 @@ The `IAgentRuntime` interface defines the main structure of the runtime environm
 
 ```typescript
 interface IAgentRuntime {
-  // Core identification
-  agentId: UUID;
-  serverUrl: string;
-  token: string;
+    // Core identification
+    agentId: UUID;
+    serverUrl: string;
+    token: string;
 
-  // Configuration
-  character: Character;
-  modelProvider: ModelProviderName;
+    // Configuration
+    character: Character;
+    modelProvider: ModelProviderName;
 
-  // Components
-  actions: Action[];
-  evaluators: Evaluator[];
-  providers: Provider[];
+    // Components
+    actions: Action[];
+    evaluators: Evaluator[];
+    providers: Provider[];
 
-  // Database & Memory
-  databaseAdapter: IDatabaseAdapter;
-  messageManager: IMemoryManager;
-  descriptionManager: IMemoryManager;
-  loreManager: IMemoryManager;
+    // Database & Memory
+    databaseAdapter: IDatabaseAdapter;
+    messageManager: IMemoryManager;
+    descriptionManager: IMemoryManager;
+    loreManager: IMemoryManager;
 }
 ```
 
@@ -70,19 +70,19 @@ Each element in the runtime interface plays a crucial role:
 This section demonstrates setting up an agent with basic and optional configurations. It provides a working example and sample code that helps users quickly start building:
 
 ```typescript
-import { AgentRuntime, ModelProviderName } from "@ai16z/eliza";
+import { AgentRuntime, ModelProviderName } from "@elizaos/core";
 
 // Configuration example
 const runtime = new AgentRuntime({
-  token: "auth-token",
-  modelProvider: ModelProviderName.ANTHROPIC,
-  character: characterConfig,
-  databaseAdapter: new DatabaseAdapter(),
-  conversationLength: 32,
-  serverUrl: "http://localhost:7998",
-  actions: customActions,
-  evaluators: customEvaluators,
-  providers: customProviders,
+    token: "auth-token",
+    modelProvider: ModelProviderName.ANTHROPIC,
+    character: characterConfig,
+    databaseAdapter: new DatabaseAdapter(),
+    conversationLength: 32,
+    serverUrl: "http://localhost:7998",
+    actions: customActions,
+    evaluators: customEvaluators,
+    providers: customProviders,
 });
 ```
 
@@ -90,26 +90,26 @@ const runtime = new AgentRuntime({
 
 ## State Management
 
-This section should cover how agents manage and update state, with a focus on initial state composition and updating methods. The runtime maintains state through the [State](/api/interfaces/state) interface:
+This section covers how agents manage and update state, with a focus on initial state composition and updating methods. The runtime maintains state through the [State](/api/interfaces/state) interface:
 
 ```typescript
 interface State {
-  userId?: UUID;
-  agentId?: UUID;
-  roomId: UUID;
-  bio: string;
-  lore: string;
-  agentName?: string;
-  senderName?: string;
-  actors: string;
-  actorsData?: Actor[];
-  recentMessages: string;
-  recentMessagesData: Memory[];
-  goals?: string;
-  goalsData?: Goal[];
-  actions?: string;
-  actionNames?: string;
-  providers?: string;
+    userId?: UUID;
+    agentId?: UUID;
+    roomId: UUID;
+    bio: string;
+    lore: string;
+    agentName?: string;
+    senderName?: string;
+    actors: string;
+    actorsData?: Actor[];
+    recentMessages: string;
+    recentMessagesData: Memory[];
+    goals?: string;
+    goalsData?: Goal[];
+    actions?: string;
+    actionNames?: string;
+    providers?: string;
 }
 ```
 
@@ -118,7 +118,7 @@ State composition and updates are handled through dedicated methods:
 ```typescript
 // Compose initial state
 const state = await runtime.composeState(message, {
-  additionalContext: "custom-context",
+    additionalContext: "custom-context",
 });
 
 // Update message state
@@ -163,8 +163,8 @@ The runtime's message processing is handled through the [processActions](/api/cl
 ```typescript
 // Process message with actions
 await runtime.processActions(message, responses, state, async (newMessages) => {
-  // Handle new messages
-  return [message];
+    // Handle new messages
+    return [message];
 });
 ```
 
@@ -180,7 +180,7 @@ runtime.registerService(new TranscriptionService());
 
 // Get service
 const service = runtime.getService<ITranscriptionService>(
-  ServiceType.TRANSCRIPTION,
+    ServiceType.TRANSCRIPTION,
 );
 ```
 
@@ -194,10 +194,10 @@ const memoryManager = runtime.getMemoryManager("messages");
 
 // Create memory
 await memoryManager.createMemory({
-  id: messageId,
-  content: { text: "Message content" },
-  userId: userId,
-  roomId: roomId,
+    id: messageId,
+    content: { text: "Message content" },
+    userId: userId,
+    roomId: roomId,
 });
 ```
 
@@ -229,7 +229,7 @@ const evaluationResults = await runtime.evaluate(message, state, didRespond);
 
 ```typescript
 await runtime.processActions(message, responses, state, (newMessages) => {
-  return [message];
+    return [message];
 });
 ```
 
@@ -237,7 +237,7 @@ await runtime.processActions(message, responses, state, (newMessages) => {
 
 ```typescript
 const state = await runtime.composeState(message, {
-  additionalContext: "custom-context",
+    additionalContext: "custom-context",
 });
 ```
 
@@ -246,10 +246,10 @@ const state = await runtime.composeState(message, {
 ```typescript
 const memoryManager = runtime.getMemoryManager("messages");
 await memoryManager.createMemory({
-  id: messageId,
-  content: { text: "Message content" },
-  userId,
-  roomId,
+    id: messageId,
+    content: { text: "Message content" },
+    userId,
+    roomId,
 });
 ```
 

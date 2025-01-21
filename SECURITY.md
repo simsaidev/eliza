@@ -24,10 +24,10 @@ We take the security of Eliza seriously. If you believe you have found a securit
 
 ### What to Expect
 
--   **Initial Response**: Within 48 hours, you will receive an acknowledgment of your report
--   **Updates**: We will provide updates every 5 business days about the progress
--   **Resolution Timeline**: We aim to resolve critical issues within 15 days
--   **Disclosure**: We will coordinate with you on the public disclosure timing
+- **Initial Response**: Within 48 hours, you will receive an acknowledgment of your report
+- **Updates**: We will provide updates every 5 business days about the progress
+- **Resolution Timeline**: We aim to resolve critical issues within 15 days
+- **Disclosure**: We will coordinate with you on the public disclosure timing
 
 ## Security Best Practices
 
@@ -73,10 +73,10 @@ We take the security of Eliza seriously. If you believe you have found a securit
 
 ### Current Implementation
 
--   Environment variable based secrets management
--   Type-safe API implementations
--   Automated dependency updates via Renovate
--   Continuous Integration security checks
+- Environment variable based secrets management
+- Type-safe API implementations
+- Automated dependency updates via Renovate
+- Continuous Integration security checks
 
 ### Planned Improvements
 
@@ -105,21 +105,21 @@ We follow a coordinated disclosure process:
 
 We believe in recognizing security researchers who help improve our security. Contributors who report valid security issues will be:
 
--   Credited in our security acknowledgments (unless they wish to remain anonymous)
--   Added to our security hall of fame
--   Considered for our bug bounty program (coming soon)
+- Credited in our security acknowledgments (unless they wish to remain anonymous)
+- Added to our security hall of fame
+- Considered for our bug bounty program (coming soon)
 
 ## License Considerations
 
 As an MIT licensed project, users should understand:
 
--   The software is provided "as is"
--   No warranty is provided
--   Users are responsible for their own security implementations
--   Contributors grant perpetual license to their contributions
+- The software is provided "as is"
+- No warranty is provided
+- Users are responsible for their own security implementations
+- Contributors grant perpetual license to their contributions
 
 ## Contact
 
--   Security Issues: security@eliza.builders
--   General Questions: Join our [Discord](https://discord.gg/ai16z)
--   Updates: Follow our [security advisory page](https://github.com/ai16z/eliza/security/advisories)
+- Security Issues: security@eliza.builders
+- General Questions: Join our [Discord](https://discord.gg/ai16z)
+- Updates: Follow our [security advisory page](https://github.com/elizaos/eliza/security/advisories)

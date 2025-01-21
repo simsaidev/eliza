@@ -1,4 +1,5 @@
-import React, { useEffect, useState, useRef } from "react";
+import type React from "react";
+import { useEffect, useState, useRef } from "react";
 import ContributorCard from "./Contributor";
 import Contributions from "./Contributions";
 import { useColorMode } from "@docusaurus/theme-common";
@@ -68,7 +69,7 @@ const Contributors: React.FC = () => {
         loadingRef.current = true;
         try {
             const response = await fetch(
-                `https://api.github.com/repos/ai16z/eliza/contributors?per_page=${GITHUB_PAGE_LIMIT}&page=${page}`,
+                `https://api.github.com/repos/elizaos/eliza/contributors?per_page=${GITHUB_PAGE_LIMIT}&page=${page}`,
                 {
                     method: "GET",
                     headers: {
@@ -101,7 +102,7 @@ const Contributors: React.FC = () => {
         const fetchActivitySummaries = async () => {
             try {
                 const response = await fetch(
-                    "https://ai16z.github.io/data/contributors.json",
+                    "https://elizaos.github.io/data/contributors.json",
                 );
                 if (!response.ok) {
                     throw new Error(

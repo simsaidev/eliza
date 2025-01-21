@@ -1,4 +1,4 @@
-[@ai16z/eliza v0.1.5-alpha.5](../index.md) / IAwsS3Service
+[@elizaos/core v0.1.7](../index.md) / IAwsS3Service
 
 # Interface: IAwsS3Service
 
@@ -24,7 +24,7 @@
 
 #### Defined in
 
-[packages/core/src/types.ts:1009](https://github.com/ai16z/eliza/blob/main/packages/core/src/types.ts#L1009)
+[packages/core/src/types.ts:1090](https://github.com/elizaOS/eliza/blob/main/packages/core/src/types.ts#L1090)
 
 ## Methods
 
@@ -48,9 +48,9 @@ Add abstract initialize method that must be implemented by derived classes
 
 #### Defined in
 
-[packages/core/src/types.ts:1014](https://github.com/ai16z/eliza/blob/main/packages/core/src/types.ts#L1014)
+[packages/core/src/types.ts:1095](https://github.com/elizaOS/eliza/blob/main/packages/core/src/types.ts#L1095)
 
-***
+---
 
 ### uploadFile()
 
@@ -84,9 +84,9 @@ Add abstract initialize method that must be implemented by derived classes
 
 #### Defined in
 
-[packages/core/src/types.ts:1168](https://github.com/ai16z/eliza/blob/main/packages/core/src/types.ts#L1168)
+[packages/core/src/types.ts:1250](https://github.com/elizaOS/eliza/blob/main/packages/core/src/types.ts#L1250)
 
-***
+---
 
 ### generateSignedUrl()
 
@@ -104,4 +104,4 @@ Add abstract initialize method that must be implemented by derived classes
 
 #### Defined in
 
-[packages/core/src/types.ts:1178](https://github.com/ai16z/eliza/blob/main/packages/core/src/types.ts#L1178)
+[packages/core/src/types.ts:1260](https://github.com/elizaOS/eliza/blob/main/packages/core/src/types.ts#L1260)

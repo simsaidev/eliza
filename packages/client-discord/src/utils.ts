@@ -1,24 +1,24 @@
 import {
-    IAgentRuntime,
+    type IAgentRuntime,
     ModelClass,
     elizaLogger,
     generateText,
     trimTokens,
     parseJSONObjectFromText,
-} from "@ai16z/eliza";
+} from "@elizaos/core";
 import {
     ChannelType,
-    Message as DiscordMessage,
+    type Message as DiscordMessage,
     PermissionsBitField,
-    TextChannel,
+    type TextChannel,
     ThreadChannel,
 } from "discord.js";
 
 export function getWavHeader(
     audioLength: number,
     sampleRate: number,
-    channelCount: number = 1,
-    bitsPerSample: number = 16
+    channelCount = 1,
+    bitsPerSample = 16
 ): Buffer {
     const wavHeader = Buffer.alloc(44);
     wavHeader.write("RIFF", 0);
@@ -47,7 +47,7 @@ export async function generateSummary(
     text: string
 ): Promise<{ title: string; description: string }> {
     // make sure text is under 128k characters
-    text = trimTokens(text, 100000, "gpt-4o-mini"); // TODO: clean this up
+    text = await trimTokens(text, 100000, runtime);
 
     const prompt = `Please generate a concise summary for the following text:
 
@@ -133,7 +133,7 @@ function splitMessage(content: string): string[] {
     const rawLines = content?.split("\n") || [];
     // split all lines into MAX_MESSAGE_LENGTH chunks so any long lines are split
     const lines = rawLines
-        .map((line) => {
+        .flatMap((line) => {
             const chunks = [];
             while (line.length > MAX_MESSAGE_LENGTH) {
                 chunks.push(line.slice(0, MAX_MESSAGE_LENGTH));
@@ -141,8 +141,7 @@ function splitMessage(content: string): string[] {
             }
             chunks.push(line);
             return chunks;
-        })
-        .flat();
+        });
 
     for (const line of lines) {
         if (currentMessage.length + line.length + 1 > MAX_MESSAGE_LENGTH) {
@@ -222,15 +221,20 @@ export function canSendMessage(channel) {
     };
 }
 
-export function cosineSimilarity(text1: string, text2: string, text3?: string): number {
-    const preprocessText = (text: string) => text
-        .toLowerCase()
-        .replace(/[^\w\s'_-]/g, ' ')
-        .replace(/\s+/g, ' ')
-        .trim();
+export function cosineSimilarity(
+    text1: string,
+    text2: string,
+    text3?: string
+): number {
+    const preprocessText = (text: string) =>
+        text
+            .toLowerCase()
+            .replace(/[^\w\s'_-]/g, " ")
+            .replace(/\s+/g, " ")
+            .trim();
 
     const getWords = (text: string) => {
-        return text.split(' ').filter(word => word.length > 1);
+        return text.split(" ").filter((word) => word.length > 1);
     };
 
     const words1 = getWords(preprocessText(text1));
@@ -241,20 +245,24 @@ export function cosineSimilarity(text1: string, text2: string, text3?: string): 
     const freq2: { [key: string]: number } = {};
     const freq3: { [key: string]: number } = {};
 
-    words1.forEach(word => freq1[word] = (freq1[word] || 0) + 1);
-    words2.forEach(word => freq2[word] = (freq2[word] || 0) + 1);
+    words1.forEach((word) => (freq1[word] = (freq1[word] || 0) + 1));
+    words2.forEach((word) => (freq2[word] = (freq2[word] || 0) + 1));
     if (words3.length) {
-        words3.forEach(word => freq3[word] = (freq3[word] || 0) + 1);
+        words3.forEach((word) => (freq3[word] = (freq3[word] || 0) + 1));
     }
 
-    const uniqueWords = new Set([...Object.keys(freq1), ...Object.keys(freq2), ...(words3.length ? Object.keys(freq3) : [])]);
+    const uniqueWords = new Set([
+        ...Object.keys(freq1),
+        ...Object.keys(freq2),
+        ...(words3.length ? Object.keys(freq3) : []),
+    ]);
 
     let dotProduct = 0;
     let magnitude1 = 0;
     let magnitude2 = 0;
     let magnitude3 = 0;
 
-    uniqueWords.forEach(word => {
+    uniqueWords.forEach((word) => {
         const val1 = freq1[word] || 0;
         const val2 = freq2[word] || 0;
         const val3 = freq3[word] || 0;
@@ -282,7 +290,12 @@ export function cosineSimilarity(text1: string, text2: string, text3?: string): 
     magnitude2 = Math.sqrt(magnitude2);
     magnitude3 = words3.length ? Math.sqrt(magnitude3) : 1;
 
-    if (magnitude1 === 0 || magnitude2 === 0 || (words3.length && magnitude3 === 0)) return 0;
+    if (
+        magnitude1 === 0 ||
+        magnitude2 === 0 ||
+        (words3.length && magnitude3 === 0)
+    )
+        return 0;
 
     // For two texts, use original calculation
     if (!words3.length) {

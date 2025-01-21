@@ -1,22 +1,22 @@
-import { elizaLogger } from "@ai16z/eliza";
+import { elizaLogger } from "@elizaos/core";
 import {
-    ActionExample,
-    Content,
-    HandlerCallback,
-    IAgentRuntime,
-    Memory,
+    type ActionExample,
+    type Content,
+    type HandlerCallback,
+    type IAgentRuntime,
+    type Memory,
     ModelClass,
-    State,
+    type State,
     type Action,
-} from "@ai16z/eliza";
-import { composeContext } from "@ai16z/eliza";
-import { generateObjectDeprecated } from "@ai16z/eliza";
+} from "@elizaos/core";
+import { composeContext } from "@elizaos/core";
+import { generateObjectDeprecated } from "@elizaos/core";
 import {
     Account,
     Aptos,
     AptosConfig,
     Ed25519PrivateKey,
-    Network,
+    type Network,
     PrivateKey,
     PrivateKeyVariants,
 } from "@aptos-labs/ts-sdk";
@@ -28,7 +28,7 @@ export interface TransferContent extends Content {
 }
 
 function isTransferContent(content: any): content is TransferContent {
-    console.log("Content for transfer", content);
+    elizaLogger.log("Content for transfer", content);
     return (
         typeof content.recipient === "string" &&
         (typeof content.amount === "string" ||
@@ -64,21 +64,21 @@ export default {
         "PAY",
     ],
     validate: async (runtime: IAgentRuntime, message: Memory) => {
-        console.log("Validating apt transfer from user:", message.userId);
+        elizaLogger.log("Validating apt transfer from user:", message.userId);
         //add custom validate logic here
         /*
             const adminIds = runtime.getSetting("ADMIN_USER_IDS")?.split(",") || [];
-            //console.log("Admin IDs from settings:", adminIds);
+            //elizaLogger.log("Admin IDs from settings:", adminIds);
 
             const isAdmin = adminIds.includes(message.userId);
 
             if (isAdmin) {
-                //console.log(`Authorized transfer from user: ${message.userId}`);
+                //elizaLogger.log(`Authorized transfer from user: ${message.userId}`);
                 return true;
             }
             else
             {
-                //console.log(`Unauthorized transfer attempt from user: ${message.userId}`);
+                //elizaLogger.log(`Unauthorized transfer attempt from user: ${message.userId}`);
                 return false;
             }
             */
@@ -119,7 +119,7 @@ export default {
 
         // Validate transfer content
         if (!isTransferContent(content)) {
-            console.error("Invalid content for TRANSFER_TOKEN action.");
+            elizaLogger.error("Invalid content for TRANSFER_TOKEN action.");
             if (callback) {
                 callback({
                     text: "Unable to process transfer request. Invalid content provided.",
@@ -150,7 +150,7 @@ export default {
             const adjustedAmount = BigInt(
                 Number(content.amount) * Math.pow(10, APT_DECIMALS)
             );
-            console.log(
+            elizaLogger.log(
                 `Transferring: ${content.amount} tokens (${adjustedAmount} base units)`
             );
 
@@ -171,7 +171,7 @@ export default {
                 transactionHash: committedTransaction.hash,
             });
 
-            console.log("Transfer successful:", executedTransaction.hash);
+            elizaLogger.log("Transfer successful:", executedTransaction.hash);
 
             if (callback) {
                 callback({
@@ -187,7 +187,7 @@ export default {
 
             return true;
         } catch (error) {
-            console.error("Error during token transfer:", error);
+            elizaLogger.error("Error during token transfer:", error);
             if (callback) {
                 callback({
                     text: `Error transferring tokens: ${error.message}`,

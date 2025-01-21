@@ -1,35 +1,30 @@
-import path from "path";
 import { defineConfig } from "vite";
-import topLevelAwait from "vite-plugin-top-level-await";
-import react from "@vitejs/plugin-react";
-import wasm from "vite-plugin-wasm";
+import react from "@vitejs/plugin-react-swc";
+import viteCompression from "vite-plugin-compression";
+import path from "path";
 
 // https://vite.dev/config/
 export default defineConfig({
-    plugins: [wasm(), topLevelAwait(), react()],
-    optimizeDeps: {
-        exclude: ["onnxruntime-node", "@anush008/tokenizers"],
-    },
+    plugins: [
+        react(),
+        viteCompression({
+            algorithm: "brotliCompress",
+            ext: ".br",
+            threshold: 1024,
+        }),
+    ],
+    clearScreen: false,
+    envDir: path.resolve(__dirname, ".."),
     build: {
-        commonjsOptions: {
-            exclude: ["onnxruntime-node", "@anush008/tokenizers"],
-        },
-        rollupOptions: {
-            external: ["onnxruntime-node", "@anush008/tokenizers"],
-        },
+        outDir: "dist",
+        minify: true,
+        cssMinify: true,
+        sourcemap: false,
+        cssCodeSplit: true,
     },
     resolve: {
         alias: {
-            "@": path.resolve(__dirname, "./src"),
-        },
-    },
-    server: {
-        proxy: {
-            "/api": {
-                target: "http://localhost:3000",
-                changeOrigin: true,
-                rewrite: (path) => path.replace(/^\/api/, ""),
-            },
+            "@": "/src",
         },
     },
 });

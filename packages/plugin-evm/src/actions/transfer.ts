@@ -1,19 +1,18 @@
-import { ByteArray, formatEther, parseEther, type Hex } from "viem";
+import { type ByteArray, formatEther, parseEther, type Hex } from "viem";
 import {
+    type Action,
     composeContext,
     generateObjectDeprecated,
-    HandlerCallback,
+    type HandlerCallback,
     ModelClass,
     type IAgentRuntime,
     type Memory,
     type State,
-} from "@ai16z/eliza";
+} from "@elizaos/core";
 
-import { initWalletProvider, WalletProvider } from "../providers/wallet";
+import { initWalletProvider, type WalletProvider } from "../providers/wallet";
 import type { Transaction, TransferParams } from "../types";
 import { transferTemplate } from "../templates";
-
-export { transferTemplate };
 
 // Exported for tests
 export class TransferAction {
@@ -28,7 +27,7 @@ export class TransferAction {
             params.data = "0x";
         }
 
-        await this.walletProvider.switchChain(params.fromChain);
+        this.walletProvider.switchChain(params.fromChain);
 
         const walletClient = this.walletProvider.getWalletClient(
             params.fromChain
@@ -41,13 +40,13 @@ export class TransferAction {
                 value: parseEther(params.amount),
                 data: params.data as Hex,
                 kzg: {
-                    blobToKzgCommitment: function (blob: ByteArray): ByteArray {
+                    blobToKzgCommitment: (_: ByteArray): ByteArray => {
                         throw new Error("Function not implemented.");
                     },
-                    computeBlobKzgProof: function (
-                        blob: ByteArray,
-                        commitment: ByteArray
-                    ): ByteArray {
+                    computeBlobKzgProof: (
+                        _blob: ByteArray,
+                        _commitment: ByteArray
+                    ): ByteArray => {
                         throw new Error("Function not implemented.");
                     },
                 },
@@ -72,21 +71,17 @@ const buildTransferDetails = async (
     runtime: IAgentRuntime,
     wp: WalletProvider
 ): Promise<TransferParams> => {
+    const chains = Object.keys(wp.chains);
+    state.supportedChains = chains.map((item) => `"${item}"`).join("|");
+
     const context = composeContext({
         state,
         template: transferTemplate,
     });
 
-    const chains = Object.keys(wp.chains);
-
-    const contextWithChains = context.replace(
-        "SUPPORTED_CHAINS",
-        chains.toString()
-    );
-
     const transferDetails = (await generateObjectDeprecated({
         runtime,
-        context: contextWithChains,
+        context,
         modelClass: ModelClass.SMALL,
     })) as TransferParams;
 
@@ -104,39 +99,32 @@ const buildTransferDetails = async (
     return transferDetails;
 };
 
-export const transferAction = {
+export const transferAction: Action = {
     name: "transfer",
     description: "Transfer tokens between addresses on the same chain",
     handler: async (
         runtime: IAgentRuntime,
         message: Memory,
         state: State,
-        options: any,
+        _options: any,
         callback?: HandlerCallback
     ) => {
+        if (!state) {
+            state = (await runtime.composeState(message)) as State;
+        } else {
+            state = await runtime.updateRecentMessageState(state);
+        }
+
         console.log("Transfer action handler called");
-        const walletProvider = initWalletProvider(runtime);
+        const walletProvider = await initWalletProvider(runtime);
         const action = new TransferAction(walletProvider);
 
         // Compose transfer context
-        const transferContext = composeContext({
+        const paramOptions = await buildTransferDetails(
             state,
-            template: transferTemplate,
-        });
-
-        // Generate transfer content
-        const content = await generateObjectDeprecated({
             runtime,
-            context: transferContext,
-            modelClass: ModelClass.LARGE,
-        });
-
-        const paramOptions: TransferParams = {
-            fromChain: content.fromChain,
-            toAddress: content.toAddress,
-            amount: content.amount,
-            data: content.data,
-        };
+            walletProvider
+        );
 
         try {
             const transferResp = await action.transfer(paramOptions);
@@ -148,7 +136,7 @@ export const transferAction = {
                         hash: transferResp.hash,
                         amount: formatEther(transferResp.value),
                         recipient: transferResp.to,
-                        chain: content.fromChain,
+                        chain: paramOptions.fromChain,
                     },
                 });
             }
@@ -164,7 +152,6 @@ export const transferAction = {
             return false;
         }
     },
-    template: transferTemplate,
     validate: async (runtime: IAgentRuntime) => {
         const privateKey = runtime.getSetting("EVM_PRIVATE_KEY");
         return typeof privateKey === "string" && privateKey.startsWith("0x");

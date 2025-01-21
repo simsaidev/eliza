@@ -2,20 +2,20 @@ import {
     composeContext,
     elizaLogger,
     generateObjectDeprecated,
-    HandlerCallback,
+    type HandlerCallback,
     ModelClass,
     type IAgentRuntime,
     type Memory,
     type State,
-} from "@ai16z/eliza";
+} from "@elizaos/core";
 import { WalletProvider } from "../providers/wallet";
 import { attachTermsTemplate } from "../templates";
-import {
+import type {
     AttachLicenseTermsResponse,
     LicenseTerms,
     RegisterPILResponse,
 } from "@story-protocol/core-sdk";
-import { AttachTermsParams } from "../types";
+import type { AttachTermsParams } from "../types";
 import { zeroAddress } from "viem";
 
 export { attachTermsTemplate };
@@ -29,7 +29,7 @@ export class AttachTermsAction {
     }> {
         const storyClient = this.walletProvider.getStoryClient();
 
-        console.log("params", params);
+        elizaLogger.log("params", params);
 
         const licenseTerms: LicenseTerms = {
             transferable: true,

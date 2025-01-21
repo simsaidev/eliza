@@ -1,4 +1,4 @@
-import { IAgentRuntime } from "@ai16z/eliza";
+import type { IAgentRuntime } from "@elizaos/core";
 import { z } from "zod";
 
 export const nodeEnvSchema = z.object({
@@ -75,7 +75,9 @@ export async function validateNodeConfig(
             // AWS settings (only include if present)
             ...(runtime.getSetting("AWS_ACCESS_KEY_ID") && {
                 AWS_ACCESS_KEY_ID: runtime.getSetting("AWS_ACCESS_KEY_ID"),
-                AWS_SECRET_ACCESS_KEY: runtime.getSetting("AWS_SECRET_ACCESS_KEY"),
+                AWS_SECRET_ACCESS_KEY: runtime.getSetting(
+                    "AWS_SECRET_ACCESS_KEY"
+                ),
                 AWS_REGION: runtime.getSetting("AWS_REGION"),
                 AWS_S3_BUCKET: runtime.getSetting("AWS_S3_BUCKET"),
                 AWS_S3_UPLOAD_PATH: runtime.getSetting("AWS_S3_UPLOAD_PATH"),

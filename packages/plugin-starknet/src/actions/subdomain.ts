@@ -1,18 +1,18 @@
 // It should just transfer subdomain from the root domain owned by the agent's wallet to the recipient.
 
 import {
-    ActionExample,
-    HandlerCallback,
-    IAgentRuntime,
-    Memory,
+    type ActionExample,
+    type HandlerCallback,
+    type IAgentRuntime,
+    type Memory,
     ModelClass,
-    State,
+    type State,
     type Action,
     composeContext,
     generateObjectDeprecated,
-    Content,
+    type Content,
     elizaLogger,
-} from "@ai16z/eliza";
+} from "@elizaos/core";
 import { getStarknetAccount } from "../utils";
 import { validateStarknetConfig } from "../environment";
 import { getTransferSubdomainCall, isStarkDomain } from "../utils/starknetId";

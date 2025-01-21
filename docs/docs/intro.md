@@ -25,34 +25,34 @@ Eliza is a powerful multi-agent simulation framework designed to create, deploy,
 
 - **Multi-Platform Support**:
 
-  - Full-featured Discord integration with voice channel support
-  - Twitter/X bot capabilities
-  - Telegram integration
-  - Direct API access
+    - Full-featured Discord integration with voice channel support
+    - Twitter/X bot capabilities
+    - Telegram integration
+    - Direct API access
 
 - **Media Processing**:
-  - PDF document reading and analysis
-  - Link content extraction and summarization
-  - Audio transcription
-  - Video content processing
-  - Image analysis and description
-  - Conversation summarization
+    - PDF document reading and analysis
+    - Link content extraction and summarization
+    - Audio transcription
+    - Video content processing
+    - Image analysis and description
+    - Conversation summarization
 
 ### AI & Technical Features
 
 - **Flexible Model Support**:
 
-  - Local inference with open-source models
-  - Cloud-based inference through OpenAI
-  - Default configuration with Nous Hermes Llama 3.1B
-  - Integration with Claude for complex queries
+    - Local inference with open-source models
+    - Cloud-based inference through OpenAI
+    - Default configuration with Nous Hermes Llama 3.1B
+    - Integration with Claude for complex queries
 
 - **Technical Foundation**:
-  - 100% TypeScript implementation
-  - Modular architecture
-  - Extensible action system
-  - Custom client support
-  - Comprehensive API
+    - 100% TypeScript implementation
+    - Modular architecture
+    - Extensible action system
+    - Custom client support
+    - Comprehensive API
 
 ## Use Cases
 
@@ -60,26 +60,26 @@ Eliza can be used to create:
 
 1. **AI Assistants**
 
-   - Customer support agents
-   - Community moderators
-   - Personal assistants
+    - Customer support agents
+    - Community moderators
+    - Personal assistants
 
 2. **Social Media Personas**
 
-   - Automated content creators
-   - Engagement bots
-   - Brand representatives
+    - Automated content creators
+    - Engagement bots
+    - Brand representatives
 
 3. **Knowledge Workers**
 
-   - Research assistants
-   - Content analysts
-   - Document processors
+    - Research assistants
+    - Content analysts
+    - Document processors
 
 4. **Interactive Characters**
-   - Role-playing characters
-   - Educational tutors
-   - Entertainment bots
+    - Role-playing characters
+    - Educational tutors
+    - Entertainment bots
 
 ## Getting Started
 
@@ -108,7 +108,7 @@ graph TD
 
 Eliza is backed by an active community of developers and users:
 
-- **Open Source**: Contribute to the project on [GitHub](https://github.com/ai16z/eliza)
+- **Open Source**: Contribute to the project on [GitHub](https://github.com/elizaos/eliza)
 - **Documentation**: Comprehensive guides and API references
 - **Examples**: Ready-to-use character templates and implementations
 - **Support**: Active community for troubleshooting and discussion

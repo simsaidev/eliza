@@ -1,4 +1,4 @@
-[@ai16z/eliza v0.1.5-alpha.5](../index.md) / MemoryCacheAdapter
+[@elizaos/core v0.1.7](../index.md) / MemoryCacheAdapter
 
 # Class: MemoryCacheAdapter
 
@@ -10,11 +10,11 @@
 
 ### new MemoryCacheAdapter()
 
-> **new MemoryCacheAdapter**(`initalData`?): [`MemoryCacheAdapter`](MemoryCacheAdapter.md)
+> **new MemoryCacheAdapter**(`initialData`?): [`MemoryCacheAdapter`](MemoryCacheAdapter.md)
 
 #### Parameters
 
-• **initalData?**: `Map`\<`string`, `string`\>
+• **initialData?**: `Map`\<`string`, `string`\>
 
 #### Returns
 
@@ -22,7 +22,7 @@
 
 #### Defined in
 
-[packages/core/src/cache.ts:19](https://github.com/ai16z/eliza/blob/main/packages/core/src/cache.ts#L19)
+[packages/core/src/cache.ts:19](https://github.com/elizaOS/eliza/blob/main/packages/core/src/cache.ts#L19)
 
 ## Properties
 
@@ -32,7 +32,7 @@
 
 #### Defined in
 
-[packages/core/src/cache.ts:17](https://github.com/ai16z/eliza/blob/main/packages/core/src/cache.ts#L17)
+[packages/core/src/cache.ts:17](https://github.com/elizaOS/eliza/blob/main/packages/core/src/cache.ts#L17)
 
 ## Methods
 
@@ -54,9 +54,9 @@
 
 #### Defined in
 
-[packages/core/src/cache.ts:23](https://github.com/ai16z/eliza/blob/main/packages/core/src/cache.ts#L23)
+[packages/core/src/cache.ts:23](https://github.com/elizaOS/eliza/blob/main/packages/core/src/cache.ts#L23)
 
-***
+---
 
 ### set()
 
@@ -78,9 +78,9 @@
 
 #### Defined in
 
-[packages/core/src/cache.ts:27](https://github.com/ai16z/eliza/blob/main/packages/core/src/cache.ts#L27)
+[packages/core/src/cache.ts:27](https://github.com/elizaOS/eliza/blob/main/packages/core/src/cache.ts#L27)
 
-***
+---
 
 ### delete()
 
@@ -100,4 +100,4 @@
 
 #### Defined in
 
-[packages/core/src/cache.ts:31](https://github.com/ai16z/eliza/blob/main/packages/core/src/cache.ts#L31)
+[packages/core/src/cache.ts:31](https://github.com/elizaOS/eliza/blob/main/packages/core/src/cache.ts#L31)

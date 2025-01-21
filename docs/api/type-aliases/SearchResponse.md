@@ -1,4 +1,4 @@
-[@ai16z/eliza v0.1.5-alpha.5](../index.md) / SearchResponse
+[@elizaos/core v0.1.7](../index.md) / SearchResponse
 
 # Type Alias: SearchResponse
 
@@ -6,30 +6,26 @@
 
 ## Type declaration
 
+### answer?
+
+> `optional` **answer**: `string`
+
 ### query
 
 > **query**: `string`
 
-### follow\_up\_questions
+### responseTime
 
-> **follow\_up\_questions**: `string`[] \| `null`
-
-### answer
-
-> **answer**: `string` \| `null`
+> **responseTime**: `number`
 
 ### images
 
-> **images**: `string`[]
+> **images**: [`SearchImage`](SearchImage.md)[]
 
 ### results
 
 > **results**: [`SearchResult`](SearchResult.md)[]
 
-### response\_time
-
-> **response\_time**: `number`
-
 ## Defined in
 
-[packages/core/src/types.ts:1189](https://github.com/ai16z/eliza/blob/main/packages/core/src/types.ts#L1189)
+[packages/core/src/types.ts:1277](https://github.com/elizaOS/eliza/blob/main/packages/core/src/types.ts#L1277)

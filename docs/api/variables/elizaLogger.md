@@ -1,4 +1,4 @@
-[@ai16z/eliza v0.1.5-alpha.5](../index.md) / elizaLogger
+[@elizaos/core v0.1.7](../index.md) / elizaLogger
 
 # Variable: elizaLogger
 
@@ -6,4 +6,4 @@
 
 ## Defined in
 
-[packages/core/src/logger.ts:267](https://github.com/ai16z/eliza/blob/main/packages/core/src/logger.ts#L267)
+[packages/core/src/logger.ts:267](https://github.com/elizaOS/eliza/blob/main/packages/core/src/logger.ts#L267)

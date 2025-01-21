@@ -1,6 +1,6 @@
 # Eliza - เฟรมเวิร์กจำลองเอเจนต์หลายตัวเเทน
 
-# https://github.com/ai16z/eliza
+# https://github.com/elizaos/eliza
 
 # เข้าไปดู https://eliza.builders สำหรับขอความช่วยเหลือประการใด
 
@@ -98,7 +98,6 @@ TWITTER_DRY_RUN=false
 TWITTER_USERNAME= # ชื่อผู้ใช้บัญชี
 TWITTER_PASSWORD= # รหัสผ่าน
 TWITTER_EMAIL= # อีเมล
-TWITTER_COOKIES= # คุกกี้
 
 X_SERVER_URL=
 XAI_API_KEY=
@@ -115,7 +114,7 @@ BIRDEYE_API_KEY=
 
 SOL_ADDRESS=So11111111111111111111111111111111111111112
 SLIPPAGE=1
-RPC_URL=https://api.mainnet-beta.solana.com
+SOLANA_RPC_URL=https://api.mainnet-beta.solana.com
 HELIUS_API_KEY=
 
 

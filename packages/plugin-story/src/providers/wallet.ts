@@ -1,4 +1,4 @@
-import type { IAgentRuntime, Provider, Memory, State } from "@ai16z/eliza";
+import type { IAgentRuntime, Provider, Memory, State } from "@elizaos/core";
 import {
     createPublicClient,
     createWalletClient,
@@ -9,12 +9,13 @@ import {
     type Chain,
     type HttpTransport,
     type Address,
-    Account,
+    type Account,
+    type Transport,
 } from "viem";
 import { storyOdyssey } from "viem/chains";
 import type { SupportedChain, ChainMetadata } from "../types";
 import { privateKeyToAccount } from "viem/accounts";
-import { StoryClient, StoryConfig } from "@story-protocol/core-sdk";
+import { StoryClient, type StoryConfig } from "@story-protocol/core-sdk";
 
 export const DEFAULT_CHAIN_CONFIGS: Record<SupportedChain, ChainMetadata> = {
     odyssey: {
@@ -52,8 +53,10 @@ export class WalletProvider {
         this.address = account.address;
 
         const config: StoryConfig = {
-            account: account,
-            transport: http(DEFAULT_CHAIN_CONFIGS.odyssey.rpcUrl),
+            // @ts-ignore
+            account: account as Account,
+            // @ts-ignore
+            transport: hwttp(DEFAULT_CHAIN_CONFIGS.odyssey.rpcUrl) as Transport,
             chainId: "odyssey",
         };
         this.storyClient = StoryClient.newClient(config);

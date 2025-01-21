@@ -1,14 +1,14 @@
-import { composeContext } from "@ai16z/eliza";
-import { generateTrueOrFalse } from "@ai16z/eliza";
-import { booleanFooter } from "@ai16z/eliza";
+import { composeContext } from "@elizaos/core";
+import { generateTrueOrFalse } from "@elizaos/core";
+import { booleanFooter } from "@elizaos/core";
 import {
-    Action,
-    ActionExample,
-    IAgentRuntime,
-    Memory,
+    type Action,
+    type ActionExample,
+    type IAgentRuntime,
+    type Memory,
     ModelClass,
-    State,
-} from "@ai16z/eliza";
+    type State,
+} from "@elizaos/core";
 
 export const shouldUnmuteTemplate =
     `Based on the conversation so far:

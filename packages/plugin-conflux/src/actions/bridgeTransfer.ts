@@ -1,16 +1,16 @@
-import {
+import type {
     Action,
     IAgentRuntime,
     Memory,
     State,
     HandlerCallback,
-} from "@ai16z/eliza";
+} from "@elizaos/core";
 import {
     generateObject,
     composeContext,
     ModelClass,
     Content,
-} from "@ai16z/eliza";
+} from "@elizaos/core";
 import {
     createPublicClient,
     createWalletClient,

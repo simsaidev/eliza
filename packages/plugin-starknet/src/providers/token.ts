@@ -1,9 +1,9 @@
 // THIS IS INCOMPLETE
 // Look for the TODOs to see what needs to be updated
 
-import { settings } from "@ai16z/eliza";
-import { IAgentRuntime, Memory, Provider, State } from "@ai16z/eliza";
-import {
+import { settings } from "@elizaos/core";
+import type { IAgentRuntime, Memory, Provider, State } from "@elizaos/core";
+import type {
     DexScreenerData,
     DexScreenerPair,
     HolderData,
@@ -12,16 +12,16 @@ import {
     CalculatedBuyAmounts,
     Prices,
 } from "../types/trustDB.ts";
-import { WalletProvider, Item } from "./walletProvider.ts";
+import { WalletProvider, type TokenBalances } from "./portfolioProvider.ts";
 import { num } from "starknet";
 import {
     analyzeHighSupplyHolders,
     evaluateTokenTrading,
-    TokenMetrics,
+    type TokenMetrics,
 } from "./utils.ts";
 import { PROVIDER_CONFIG } from "../index.ts";
 import { Cache } from "../utils/cache.ts";
-import { TokenInfo } from "../types/token.ts";
+import type { TokenInfo } from "../types/token.ts";
 
 export const PORTFOLIO_TOKENS = {
     // Coingecko IDs src:
@@ -129,22 +129,35 @@ export class TokenProvider {
     }
 
     // TODO: Update to Starknet
-    async getTokensInWallet(runtime: IAgentRuntime): Promise<Item[]> {
-        const walletInfo =
-            await this.walletProvider.fetchPortfolioValue(runtime);
-        const items = walletInfo.items;
-        return items;
+    async getTokensInWallet(): Promise<TokenBalances> {
+        const tokenBalances =
+             await this.walletProvider.getWalletPortfolio();
+        return tokenBalances;
     }
 
     // check if the token symbol is in the wallet
-    async getTokenFromWallet(runtime: IAgentRuntime, tokenSymbol: string) {
+    async getTokenFromWallet(tokenSymbol: string) {
         try {
-            const items = await this.getTokensInWallet(runtime);
-            const token = items.find((item) => item.symbol === tokenSymbol);
+            // Find the token in the PORTFOLIO_TOKENS using the provided tokenSymbol
+            const portfolioToken = Object.values(PORTFOLIO_TOKENS).find(
+                (token) => token.coingeckoId === tokenSymbol
+            );
 
-            if (token) {
-                return token.address;
+            if (!portfolioToken) {
+                console.warn(`Token with symbol ${tokenSymbol} not found in PORTFOLIO_TOKENS`);
+                return null;
+            }
+
+            const tokenAddress = portfolioToken.address;
+
+            // Get the list of tokens in the wallet
+            const items = await this.getTokensInWallet();
+
+            // Check if the tokenAddress exists in the TokenBalances
+            if (items[tokenAddress]) {
+                return tokenAddress;
             } else {
+                console.warn(`Token with address ${tokenAddress} not found in wallet`);
                 return null;
             }
         } catch (error) {
@@ -567,7 +580,7 @@ export class TokenProvider {
 
                 data.result.token_accounts.forEach((account: any) => {
                     const owner = account.owner;
-                    const balance = parseFloat(account.amount);
+                    const balance = Number.parseFloat(account.amount);
 
                     if (allHoldersMap.has(owner)) {
                         allHoldersMap.set(

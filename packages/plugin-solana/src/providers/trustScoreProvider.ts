@@ -1,26 +1,25 @@
 import {
-    ProcessedTokenData,
-    TokenSecurityData,
-    // TokenTradeData,
-    // DexScreenerData,
-    // DexScreenerPair,
-    // HolderData,
-} from "../types/token.ts";
-import { Connection, PublicKey } from "@solana/web3.js";
-import { getAssociatedTokenAddress } from "@solana/spl-token";
-import { TokenProvider } from "./token.ts";
-import { WalletProvider } from "./wallet.ts";
-import { SimulationSellingService } from "./simulationSellingService.ts";
+    elizaLogger,
+    type IAgentRuntime,
+    type Memory,
+    type Provider,
+    settings,
+    type State,
+} from "@elizaos/core";
 import {
+    type RecommenderMetrics,
+    type TokenPerformance,
+    type TokenRecommendation,
+    type TradePerformance,
     TrustScoreDatabase,
-    RecommenderMetrics,
-    TokenPerformance,
-    TradePerformance,
-    TokenRecommendation,
-} from "@ai16z/plugin-trustdb";
-import { settings } from "@ai16z/eliza";
-import { IAgentRuntime, Memory, Provider, State } from "@ai16z/eliza";
+} from "@elizaos/plugin-trustdb";
+import { getAssociatedTokenAddress } from "@solana/spl-token";
+import { Connection, PublicKey } from "@solana/web3.js";
 import { v4 as uuidv4 } from "uuid";
+import type { ProcessedTokenData, TokenSecurityData } from "../types/token.ts";
+import { SimulationSellingService } from "./simulationSellingService.ts";
+import type { TokenProvider } from "./token.ts";
+import { WalletProvider } from "./wallet.ts";
 
 const Wallet = settings.MAIN_WALLET_ADDRESS;
 interface TradeData {
@@ -68,7 +67,7 @@ export class TrustScoreManager {
     ) {
         this.tokenProvider = tokenProvider;
         this.trustScoreDb = trustScoreDb;
-        this.connection = new Connection(runtime.getSetting("RPC_URL"));
+        this.connection = new Connection(runtime.getSetting("SOLANA_RPC_URL"));
         this.baseMint = new PublicKey(
             runtime.getSetting("BASE_MINT") ||
                 "So11111111111111111111111111111111111111112"
@@ -91,10 +90,10 @@ export class TrustScoreManager {
             const tokenBalInfo =
                 await this.connection.getTokenAccountBalance(tokenAta);
             const tokenBalance = tokenBalInfo.value.amount;
-            const balance = parseFloat(tokenBalance);
+            const balance = Number.parseFloat(tokenBalance);
             return balance;
         } catch (error) {
-            console.error("Error fetching balance", error);
+            elizaLogger.error("Error fetching balance", error);
             return 0;
         }
     }
@@ -115,7 +114,9 @@ export class TrustScoreManager {
     }> {
         const processedData: ProcessedTokenData =
             await this.tokenProvider.getProcessedTokenData();
-        console.log(`Fetched processed token data for token: ${tokenAddress}`);
+        elizaLogger.log(
+            `Fetched processed token data for token: ${tokenAddress}`
+        );
 
         const recommenderMetrics =
             await this.trustScoreDb.getRecommenderMetrics(recommenderId);
@@ -303,14 +304,18 @@ export class TrustScoreManager {
         const unique_wallet_24h = processedData.tradeData.unique_wallet_24h;
         const volume_24h = processedData.tradeData.volume_24h;
         const suspiciousVolume = unique_wallet_24h / volume_24h > 0.5;
-        console.log(`Fetched processed token data for token: ${tokenAddress}`);
+        elizaLogger.log(
+            `Fetched processed token data for token: ${tokenAddress}`
+        );
         return suspiciousVolume;
     }
 
     async sustainedGrowth(tokenAddress: string): Promise<boolean> {
         const processedData: ProcessedTokenData =
             await this.tokenProvider.getProcessedTokenData();
-        console.log(`Fetched processed token data for token: ${tokenAddress}`);
+        elizaLogger.log(
+            `Fetched processed token data for token: ${tokenAddress}`
+        );
 
         return processedData.tradeData.volume_24h_change_percent > 50;
     }
@@ -318,7 +323,9 @@ export class TrustScoreManager {
     async isRapidDump(tokenAddress: string): Promise<boolean> {
         const processedData: ProcessedTokenData =
             await this.tokenProvider.getProcessedTokenData();
-        console.log(`Fetched processed token data for token: ${tokenAddress}`);
+        elizaLogger.log(
+            `Fetched processed token data for token: ${tokenAddress}`
+        );
 
         return processedData.tradeData.trade_24h_change_percent < -50;
     }
@@ -326,7 +333,9 @@ export class TrustScoreManager {
     async checkTrustScore(tokenAddress: string): Promise<TokenSecurityData> {
         const processedData: ProcessedTokenData =
             await this.tokenProvider.getProcessedTokenData();
-        console.log(`Fetched processed token data for token: ${tokenAddress}`);
+        elizaLogger.log(
+            `Fetched processed token data for token: ${tokenAddress}`
+        );
 
         return {
             ownerBalance: processedData.security.ownerBalance,
@@ -365,7 +374,7 @@ export class TrustScoreManager {
         let tokensBalance = 0;
         const prices = await wallet.fetchPrices(runtime);
         const solPrice = prices.solana.usd;
-        const buySol = data.buy_amount / parseFloat(solPrice);
+        const buySol = data.buy_amount / Number.parseFloat(solPrice);
         const buy_value_usd = data.buy_amount * processedData.tradeData.price;
         const token = await this.tokenProvider.fetchTokenTradeData();
         const tokenCodex = await this.tokenProvider.fetchTokenCodex();
@@ -494,15 +503,15 @@ export class TrustScoreManager {
                 // If the request is successful, exit the loop
                 return;
             } catch (error) {
-                console.error(
+                elizaLogger.error(
                     `Attempt ${attempt} failed: Error creating trade in backend`,
                     error
                 );
                 if (attempt < retries) {
-                    console.log(`Retrying in ${delayMs} ms...`);
+                    elizaLogger.log(`Retrying in ${delayMs} ms...`);
                     await this.delay(delayMs); // Wait for the specified delay before retrying
                 } else {
-                    console.error("All attempts failed.");
+                    elizaLogger.error("All attempts failed.");
                 }
             }
         }
@@ -538,7 +547,7 @@ export class TrustScoreManager {
         );
         const prices = await wallet.fetchPrices(runtime);
         const solPrice = prices.solana.usd;
-        const sellSol = sellDetails.sell_amount / parseFloat(solPrice);
+        const sellSol = sellDetails.sell_amount / Number.parseFloat(solPrice);
         const sell_value_usd =
             sellDetails.sell_amount * processedData.tradeData.price;
         const trade = await this.trustScoreDb.getLatestTradePerformance(
@@ -702,6 +711,14 @@ export const trustScoreProvider: Provider = {
         _state?: State
     ): Promise<string> {
         try {
+            // if the database type is postgres, we don't want to run this evaluator because it relies on sql queries that are currently specific to sqlite. This check can be removed once the trust score provider is updated to work with postgres.
+            if (runtime.getSetting("POSTGRES_URL")) {
+                elizaLogger.warn(
+                    "skipping trust evaluator because db is postgres"
+                );
+                return "";
+            }
+
             const trustScoreDb = new TrustScoreDatabase(
                 runtime.databaseAdapter.db
             );
@@ -710,7 +727,7 @@ export const trustScoreProvider: Provider = {
             const userId = message.userId;
 
             if (!userId) {
-                console.error("User ID is missing from the message");
+                elizaLogger.error("User ID is missing from the message");
                 return "";
             }
 
@@ -719,7 +736,10 @@ export const trustScoreProvider: Provider = {
                 await trustScoreDb.getRecommenderMetrics(userId);
 
             if (!recommenderMetrics) {
-                console.error("No recommender metrics found for user:", userId);
+                elizaLogger.error(
+                    "No recommender metrics found for user:",
+                    userId
+                );
                 return "";
             }
 
@@ -733,7 +753,7 @@ export const trustScoreProvider: Provider = {
 
             return trustScoreString;
         } catch (error) {
-            console.error("Error in trust score provider:", error.message);
+            elizaLogger.error("Error in trust score provider:", error.message);
             return `Failed to fetch trust score: ${error instanceof Error ? error.message : "Unknown error"}`;
         }
     },

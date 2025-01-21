@@ -1,4 +1,4 @@
-import { IAgentRuntime, Memory, Provider, State } from "@ai16z/eliza";
+import type { IAgentRuntime, Memory, Provider, State } from "@elizaos/core";
 
 interface SlackEvent {
     channel: string;
@@ -21,13 +21,13 @@ export const channelStateProvider: Provider = {
         const channelType = slackEvent.channel_type;
 
         // For direct messages
-        if (channelType === 'im') {
+        if (channelType === "im") {
             return `${agentName} is currently in a direct message conversation with ${senderName}`;
         }
 
         // For channel messages
         let response = `${agentName} is currently having a conversation in the Slack channel <#${channelId}>`;
-        
+
         // Add thread context if in a thread
         if (slackEvent.thread_ts) {
             response += ` in a thread`;
@@ -40,4 +40,4 @@ export const channelStateProvider: Provider = {
 
         return response;
     },
-}; 
+};

@@ -1,13 +1,14 @@
 import {
     SqliteDatabaseAdapter,
     loadVecExtensions,
-} from "@ai16z/adapter-sqlite";
-import { SqlJsDatabaseAdapter } from "@ai16z/adapter-sqljs";
-import { SupabaseDatabaseAdapter } from "@ai16z/adapter-supabase";
-import { DatabaseAdapter } from "../database.ts";
+} from "@elizaos/adapter-sqlite";
+import { SqlJsDatabaseAdapter } from "@elizaos/adapter-sqljs";
+import { SupabaseDatabaseAdapter } from "@elizaos/adapter-supabase";
+import { PGLiteDatabaseAdapter } from "@elizaos/adapter-pglite";
+import type { DatabaseAdapter } from "../database.ts";
 import { getEndpoint } from "../models.ts";
 import { AgentRuntime } from "../runtime.ts";
-import { Action, Evaluator, ModelProviderName, Provider } from "../types.ts";
+import { type Action, type Evaluator, ModelProviderName, type Provider } from "../types.ts";
 import {
     SUPABASE_ANON_KEY,
     SUPABASE_URL,
@@ -15,8 +16,19 @@ import {
     TEST_PASSWORD,
     zeroUuid,
 } from "./constants.ts";
-import { User } from "./types.ts";
+import type { User } from "./types.ts";
 
+/**
+ * Creates a runtime environment for the agent.
+ *
+ * @param {Object} param - The parameters for creating the runtime.
+ * @param {Record<string, string> | NodeJS.ProcessEnv} [param.env] - The environment variables.
+ * @param {number} [param.conversationLength] - The length of the conversation.
+ * @param {Evaluator[]} [param.evaluators] - The evaluators to be used.
+ * @param {Action[]} [param.actions] - The actions to be used.
+ * @param {Provider[]} [param.providers] - The providers to be used.
+ * @returns {Object} An object containing the created user, session, and runtime.
+ */
 export async function createRuntime({
     env,
     conversationLength,
@@ -106,6 +118,23 @@ export async function createRuntime({
             );
             break;
         }
+        case "pglite":
+            {
+                // Import the PGLite adapter
+                await import("@electric-sql/pglite");
+
+                // PGLite adapter
+                adapter = new PGLiteDatabaseAdapter({ dataDir: "../pglite" });
+
+                // Create a test user and session
+                session = {
+                    user: {
+                        id: zeroUuid,
+                        email: "test@example.com",
+                    },
+                };
+            }
+            break;
         case "sqlite":
         default:
             {

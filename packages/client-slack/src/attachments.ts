@@ -1,15 +1,19 @@
-import { generateText, trimTokens, parseJSONObjectFromText } from "@ai16z/eliza";
 import {
-    IAgentRuntime,
-    IImageDescriptionService,
-    IPdfService,
-    ITranscriptionService,
-    IVideoService,
-    Media,
+    generateText,
+    trimTokens,
+    parseJSONObjectFromText,
+} from "@elizaos/core";
+import {
+    type IAgentRuntime,
+    type IImageDescriptionService,
+    type IPdfService,
+    type ITranscriptionService,
+    type IVideoService,
+    type Media,
     ModelClass,
     ServiceType,
-} from "@ai16z/eliza";
-import { WebClient } from '@slack/web-api';
+} from "@elizaos/core";
+import type { WebClient } from "@slack/web-api";
 import ffmpeg from "fluent-ffmpeg";
 import fs from "fs";
 
@@ -17,14 +21,14 @@ async function generateSummary(
     runtime: IAgentRuntime,
     text: string
 ): Promise<{ title: string; description: string }> {
-    text = trimTokens(text, 100000, "gpt-4o-mini");
+    text = await trimTokens(text, 100000, runtime);
 
     const prompt = `Please generate a concise summary for the following text:
-  
+
   Text: """
   ${text}
   """
-  
+
   Respond with a JSON object in the following format:
   \`\`\`json
   {
@@ -92,10 +96,12 @@ export class AttachmentManager {
         }
 
         let media: Media | null = null;
-        
+
         try {
-            const videoService = this.runtime.getService<IVideoService>(ServiceType.VIDEO);
-            
+            const videoService = this.runtime.getService<IVideoService>(
+                ServiceType.VIDEO
+            );
+
             if (file.mimetype.startsWith("application/pdf")) {
                 media = await this.processPdfAttachment(file);
             } else if (file.mimetype.startsWith("text/plain")) {
@@ -120,7 +126,8 @@ export class AttachmentManager {
                 this.attachmentCache.set(file.url_private, media);
             }
         } catch (error: unknown) {
-            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+            const errorMessage =
+                error instanceof Error ? error.message : "Unknown error";
             console.error(`Error processing attachment: ${errorMessage}`);
             media = await this.processGenericAttachment(file);
         }
@@ -131,8 +138,8 @@ export class AttachmentManager {
     private async fetchFileContent(file: SlackFile): Promise<Buffer> {
         const response = await fetch(file.url_private, {
             headers: {
-                'Authorization': `Bearer ${this.client.token}`,
-            }
+                Authorization: `Bearer ${this.client.token}`,
+            },
         });
         const arrayBuffer = await response.arrayBuffer();
         return Buffer.from(arrayBuffer);
@@ -151,29 +158,41 @@ export class AttachmentManager {
                 throw new Error("Unsupported audio/video format");
             }
 
-            const transcriptionService = this.runtime.getService<ITranscriptionService>(ServiceType.TRANSCRIPTION);
+            const transcriptionService =
+                this.runtime.getService<ITranscriptionService>(
+                    ServiceType.TRANSCRIPTION
+                );
             if (!transcriptionService) {
                 throw new Error("Transcription service not found");
             }
 
-            const transcription = await transcriptionService.transcribeAttachment(audioBuffer);
+            const transcription =
+                await transcriptionService.transcribeAttachment(audioBuffer);
             if (!transcription) {
                 throw new Error("Transcription failed");
             }
 
-            const { title, description } = await generateSummary(this.runtime, transcription);
+            const { title, description } = await generateSummary(
+                this.runtime,
+                transcription
+            );
 
             return {
                 id: file.id,
                 url: file.url_private,
                 title: title || "Audio/Video Attachment",
                 source: file.mimetype.startsWith("audio/") ? "Audio" : "Video",
-                description: description || "User-uploaded audio/video attachment which has been transcribed",
+                description:
+                    description ||
+                    "User-uploaded audio/video attachment which has been transcribed",
                 text: transcription,
             };
         } catch (error: unknown) {
-            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-            console.error(`Error processing audio/video attachment: ${errorMessage}`);
+            const errorMessage =
+                error instanceof Error ? error.message : "Unknown error";
+            console.error(
+                `Error processing audio/video attachment: ${errorMessage}`
+            );
             return {
                 id: file.id,
                 url: file.url_private,
@@ -216,14 +235,19 @@ export class AttachmentManager {
     private async processPdfAttachment(file: SlackFile): Promise<Media> {
         try {
             const pdfBuffer = await this.fetchFileContent(file);
-            const pdfService = this.runtime.getService<IPdfService>(ServiceType.PDF);
-            
+            const pdfService = this.runtime.getService<IPdfService>(
+                ServiceType.PDF
+            );
+
             if (!pdfService) {
                 throw new Error("PDF service not found");
             }
 
             const text = await pdfService.convertPdfToText(pdfBuffer);
-            const { title, description } = await generateSummary(this.runtime, text);
+            const { title, description } = await generateSummary(
+                this.runtime,
+                text
+            );
 
             return {
                 id: file.id,
@@ -234,14 +258,16 @@ export class AttachmentManager {
                 text: text,
             };
         } catch (error: unknown) {
-            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+            const errorMessage =
+                error instanceof Error ? error.message : "Unknown error";
             console.error(`Error processing PDF attachment: ${errorMessage}`);
             return {
                 id: file.id,
                 url: file.url_private,
                 title: "PDF Attachment (conversion failed)",
                 source: "PDF",
-                description: "A PDF document that could not be converted to text",
+                description:
+                    "A PDF document that could not be converted to text",
                 text: `This is a PDF document. File name: ${file.name}, Size: ${file.size} bytes`,
             };
         }
@@ -250,8 +276,11 @@ export class AttachmentManager {
     private async processPlaintextAttachment(file: SlackFile): Promise<Media> {
         try {
             const textBuffer = await this.fetchFileContent(file);
-            const text = textBuffer.toString('utf-8');
-            const { title, description } = await generateSummary(this.runtime, text);
+            const text = textBuffer.toString("utf-8");
+            const { title, description } = await generateSummary(
+                this.runtime,
+                text
+            );
 
             return {
                 id: file.id,
@@ -262,7 +291,8 @@ export class AttachmentManager {
                 text: text,
             };
         } catch (error: unknown) {
-            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+            const errorMessage =
+                error instanceof Error ? error.message : "Unknown error";
             console.error(`Error processing text attachment: ${errorMessage}`);
             return this.processGenericAttachment(file);
         }
@@ -270,15 +300,20 @@ export class AttachmentManager {
 
     private async processImageAttachment(file: SlackFile): Promise<Media> {
         try {
-            const imageService = this.runtime.getService<IImageDescriptionService>(ServiceType.IMAGE_DESCRIPTION);
+            const imageService =
+                this.runtime.getService<IImageDescriptionService>(
+                    ServiceType.IMAGE_DESCRIPTION
+                );
             if (!imageService) {
                 throw new Error("Image description service not found");
             }
 
-            const imageDescription = await imageService.describeImage(file.url_private) || '';
-            const descriptionText = typeof imageDescription === 'string' 
-                ? imageDescription 
-                : 'Image description not available';
+            const imageDescription =
+                (await imageService.describeImage(file.url_private)) || "";
+            const descriptionText =
+                typeof imageDescription === "string"
+                    ? imageDescription
+                    : "Image description not available";
 
             return {
                 id: file.id,
@@ -286,10 +321,13 @@ export class AttachmentManager {
                 title: "Image Attachment",
                 source: "Image",
                 description: descriptionText,
-                text: descriptionText || `This is an image. File name: ${file.name}, Size: ${file.size} bytes`,
+                text:
+                    descriptionText ||
+                    `This is an image. File name: ${file.name}, Size: ${file.size} bytes`,
             };
         } catch (error: unknown) {
-            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+            const errorMessage =
+                error instanceof Error ? error.message : "Unknown error";
             console.error(`Error processing image attachment: ${errorMessage}`);
             return this.processGenericAttachment(file);
         }
@@ -297,7 +335,9 @@ export class AttachmentManager {
 
     private async processVideoAttachment(file: SlackFile): Promise<Media> {
         try {
-            const videoService = this.runtime.getService<IVideoService>(ServiceType.VIDEO);
+            const videoService = this.runtime.getService<IVideoService>(
+                ServiceType.VIDEO
+            );
             if (!videoService) {
                 throw new Error("Video service not found");
             }
@@ -310,10 +350,13 @@ export class AttachmentManager {
                 title: "Video Attachment",
                 source: "Video",
                 description: description.text || "A video attachment",
-                text: description.text || `This is a video. File name: ${file.name}, Size: ${file.size} bytes`,
+                text:
+                    description.text ||
+                    `This is a video. File name: ${file.name}, Size: ${file.size} bytes`,
             };
         } catch (error: unknown) {
-            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+            const errorMessage =
+                error instanceof Error ? error.message : "Unknown error";
             console.error(`Error processing video attachment: ${errorMessage}`);
             return this.processGenericAttachment(file);
         }
@@ -329,4 +372,4 @@ export class AttachmentManager {
             text: `This is a file attachment. File name: ${file.name}, Size: ${file.size} bytes, Type: ${file.mimetype}`,
         };
     }
-} 
+}

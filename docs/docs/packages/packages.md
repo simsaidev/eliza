@@ -6,11 +6,11 @@ sidebar_position: 1
 
 ## Core Components
 
-- **@ai16z/core**: Central framework and shared functionality
-- **@ai16z/agent**: Agent runtime and management
-- **@ai16z/adapters**: Database implementations (PostgreSQL, SQLite, etc.)
-- **@ai16z/clients**: Platform integrations (Discord, Telegram, etc.)
-- **@ai16z/plugins**: Extension modules for additional functionality
+- **@elizaos/core**: Central framework and shared functionality
+- **@elizaos/agent**: Agent runtime and management
+- **@elizaos/adapters**: Database implementations (PostgreSQL, SQLite, etc.)
+- **@elizaos/clients**: Platform integrations (Discord, Telegram, etc.)
+- **@elizaos/plugins**: Extension modules for additional functionality
 
 ## Package Architecture
 
@@ -39,13 +39,13 @@ graph TD
 
 ```
 # Install core package
-pnpm add @ai16z/core
+pnpm add @elizaos/core
 
 # Install specific adapters
-pnpm add @ai16z/adapter-postgres
-pnpm add @ai16z/adapter-sqlite
+pnpm add @elizaos/adapter-postgres
+pnpm add @elizaos/adapter-sqlite
 
 # Install clients
-pnpm add @ai16z/client-discord
-pnpm add @ai16z/client-Telegram
+pnpm add @elizaos/client-discord
+pnpm add @elizaos/client-Telegram
 ```

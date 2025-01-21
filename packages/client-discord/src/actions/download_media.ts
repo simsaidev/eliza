@@ -1,19 +1,19 @@
 import path from "path";
-import { composeContext } from "@ai16z/eliza";
-import { parseJSONObjectFromText } from "@ai16z/eliza";
+import { composeContext } from "@elizaos/core";
+import { parseJSONObjectFromText } from "@elizaos/core";
 import {
-    Action,
-    ActionExample,
-    Content,
-    HandlerCallback,
-    IAgentRuntime,
-    IVideoService,
-    Memory,
+    type Action,
+    type ActionExample,
+    type Content,
+    type HandlerCallback,
+    type IAgentRuntime,
+    type IVideoService,
+    type Memory,
     ModelClass,
     ServiceType,
-    State,
-} from "@ai16z/eliza";
-import { generateText } from "@ai16z/eliza";
+    type State,
+} from "@elizaos/core";
+import { generateText } from "@elizaos/core";
 
 export const mediaUrlTemplate = `# Messages we are searching for a media URL
 {{recentMessages}}

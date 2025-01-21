@@ -1,16 +1,16 @@
-import {
+import type {
     IAgentRuntime,
     ICacheManager,
     Memory,
     Provider,
     State,
-} from "@ai16z/eliza";
+} from "@elizaos/core";
 import {
     Account,
     Aptos,
     AptosConfig,
     Ed25519PrivateKey,
-    Network,
+    type Network,
     PrivateKey,
     PrivateKeyVariants,
 } from "@aptos-labs/ts-sdk";
@@ -36,7 +36,7 @@ interface Prices {
 
 export class WalletProvider {
     private cache: NodeCache;
-    private cacheKey: string = "aptos/wallet";
+    private cacheKey = "aptos/wallet";
 
     constructor(
         private aptosClient: Aptos,

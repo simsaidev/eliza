@@ -1,13 +1,13 @@
-import {
+import type {
     IAgentRuntime,
     ICacheManager,
     Memory,
     Provider,
     State,
-} from "@ai16z/eliza";
+} from "@elizaos/core";
 
 import { TonClient, WalletContractV4 } from "@ton/ton";
-import { KeyPair, mnemonicToPrivateKey } from "@ton/crypto";
+import { type KeyPair, mnemonicToPrivateKey } from "@ton/crypto";
 
 import NodeCache from "node-cache";
 import * as path from "path";
@@ -39,7 +39,7 @@ export class WalletProvider {
     keypair: KeyPair;
     wallet: WalletContractV4;
     private cache: NodeCache;
-    private cacheKey: string = "ton/wallet";
+    private cacheKey = "ton/wallet";
 
     // reqiure hex private key
     constructor(
@@ -50,7 +50,10 @@ export class WalletProvider {
     ) {
         this.keypair = keypair;
         this.cache = new NodeCache({ stdTTL: 300 });
-        this.wallet = WalletContractV4.create({ workchain: 0, publicKey: keypair.publicKey });
+        this.wallet = WalletContractV4.create({
+            workchain: 0,
+            publicKey: keypair.publicKey,
+        });
     }
 
     // thanks to plugin-sui
@@ -142,7 +145,10 @@ export class WalletProvider {
 
             const priceData = await this.fetchPricesWithRetry().catch(
                 (error) => {
-                    console.error(`Error fetching ${PROVIDER_CONFIG.CHAIN_NAME_IN_DEXSCREENER.toUpperCase()} price:`, error);
+                    console.error(
+                        `Error fetching ${PROVIDER_CONFIG.CHAIN_NAME_IN_DEXSCREENER.toUpperCase()} price:`,
+                        error
+                    );
                     throw error;
                 }
             );
@@ -157,12 +163,17 @@ export class WalletProvider {
         }
     }
 
-    private formatPortfolio(runtime: IAgentRuntime, portfolio: WalletPortfolio): string {
+    private formatPortfolio(
+        runtime: IAgentRuntime,
+        portfolio: WalletPortfolio
+    ): string {
         let output = `${runtime.character.name}\n`;
         output += `Wallet Address: ${this.getAddress()}\n`;
 
         const totalUsdFormatted = new BigNumber(portfolio.totalUsd).toFixed(2);
-        const totalNativeTokenFormatted = new BigNumber(portfolio.totalNativeToken).toFixed(4);
+        const totalNativeTokenFormatted = new BigNumber(
+            portfolio.totalNativeToken
+        ).toFixed(4);
 
         output += `Total Value: $${totalUsdFormatted} (${totalNativeTokenFormatted} ${PROVIDER_CONFIG.CHAIN_NAME_IN_DEXSCREENER.toUpperCase()})\n`;
 
@@ -182,17 +193,28 @@ export class WalletProvider {
             console.log("Cache miss for fetchPortfolioValue");
 
             const prices = await this.fetchPrices().catch((error) => {
-                console.error(`Error fetching ${PROVIDER_CONFIG.CHAIN_NAME_IN_DEXSCREENER.toUpperCase()} price:`, error);
+                console.error(
+                    `Error fetching ${PROVIDER_CONFIG.CHAIN_NAME_IN_DEXSCREENER.toUpperCase()} price:`,
+                    error
+                );
                 throw error;
             });
-            const nativeTokenBalance = await this.getWalletBalance()
-                .catch((error) => {
-                    console.error(`Error fetching ${PROVIDER_CONFIG.CHAIN_NAME_IN_DEXSCREENER.toUpperCase()} amount:`, error);
+            const nativeTokenBalance = await this.getWalletBalance().catch(
+                (error) => {
+                    console.error(
+                        `Error fetching ${PROVIDER_CONFIG.CHAIN_NAME_IN_DEXSCREENER.toUpperCase()} amount:`,
+                        error
+                    );
                     throw error;
-                });
+                }
+            );
 
-            const amount = Number(nativeTokenBalance) / Number(PROVIDER_CONFIG.TON_DECIMAL);
-            const totalUsd = new BigNumber(amount.toString()).times(prices.nativeToken.usd);
+            const amount =
+                Number(nativeTokenBalance) /
+                Number(PROVIDER_CONFIG.TON_DECIMAL);
+            const totalUsd = new BigNumber(amount.toString()).times(
+                prices.nativeToken.usd
+            );
 
             const portfolio = {
                 totalUsd: totalUsd.toString(),
@@ -218,14 +240,17 @@ export class WalletProvider {
     }
 
     getAddress(): string {
-        const formattedAddress = this.wallet.address.toString({ bounceable: false, urlSafe: true });
+        const formattedAddress = this.wallet.address.toString({
+            bounceable: false,
+            urlSafe: true,
+        });
         return formattedAddress;
     }
 
     getWalletClient(): TonClient {
         const client = new TonClient({
             endpoint: this.endpoint,
-          });
+        });
         return client;
     }
 
@@ -255,7 +280,8 @@ export const initWalletProvider = async (runtime: IAgentRuntime) => {
             throw new Error("TON_PRIVATE_KEY mnemonic seems invalid");
         }
     }
-    const rpcUrl = runtime.getSetting("TON_RPC_URL") || PROVIDER_CONFIG.MAINNET_RPC;
+    const rpcUrl =
+        runtime.getSetting("TON_RPC_URL") || PROVIDER_CONFIG.MAINNET_RPC;
 
     const keypair = await mnemonicToPrivateKey(mnemonics, "");
     return new WalletProvider(keypair, rpcUrl, runtime.cacheManager);
@@ -271,7 +297,10 @@ export const nativeWalletProvider: Provider = {
             const walletProvider = await initWalletProvider(runtime);
             return await walletProvider.getFormattedPortfolio(runtime);
         } catch (error) {
-            console.error(`Error in ${PROVIDER_CONFIG.CHAIN_NAME_IN_DEXSCREENER.toUpperCase()} wallet provider:`, error);
+            console.error(
+                `Error in ${PROVIDER_CONFIG.CHAIN_NAME_IN_DEXSCREENER.toUpperCase()} wallet provider:`,
+                error
+            );
             return null;
         }
     },

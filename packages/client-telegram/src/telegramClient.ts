@@ -1,6 +1,6 @@
-import { Context, Telegraf } from "telegraf";
-import { message } from 'telegraf/filters';
-import { IAgentRuntime, elizaLogger } from "@ai16z/eliza";
+import { type Context, Telegraf } from "telegraf";
+import { message } from "telegraf/filters";
+import { type IAgentRuntime, elizaLogger } from "@elizaos/core";
 import { MessageManager } from "./messageManager.ts";
 import { getOrCreateRecommenderInBe } from "./getOrCreateRecommenderInBe.ts";
 
@@ -11,11 +11,17 @@ export class TelegramClient {
     private backend;
     private backendToken;
     private tgTrader;
+    private options;
 
     constructor(runtime: IAgentRuntime, botToken: string) {
         elizaLogger.log("📱 Constructing new TelegramClient...");
+        this.options = {
+            telegram: {
+                apiRoot: runtime.getSetting("TELEGRAM_API_ROOT") || process.env.TELEGRAM_API_ROOT || "https://api.telegram.org"
+            },
+        };
         this.runtime = runtime;
-        this.bot = new Telegraf(botToken);
+        this.bot = new Telegraf(botToken,this.options);
         this.messageManager = new MessageManager(this.bot, this.runtime);
         this.backend = runtime.getSetting("BACKEND_URL");
         this.backendToken = runtime.getSetting("BACKEND_TOKEN");
@@ -67,7 +73,10 @@ export class TelegramClient {
                 await ctx.reply("Not authorized. Leaving.");
                 await ctx.leaveChat();
             } catch (error) {
-                elizaLogger.error(`Error leaving unauthorized group ${currentGroupId}:`, error);
+                elizaLogger.error(
+                    `Error leaving unauthorized group ${currentGroupId}:`,
+                    error
+                );
             }
             return false;
         }
@@ -78,10 +87,12 @@ export class TelegramClient {
     private setupMessageHandlers(): void {
         elizaLogger.log("Setting up message handler...");
 
-        this.bot.on(message('new_chat_members'), async (ctx) => {
+        this.bot.on(message("new_chat_members"), async (ctx) => {
             try {
                 const newMembers = ctx.message.new_chat_members;
-                const isBotAdded = newMembers.some(member => member.id === ctx.botInfo.id);
+                const isBotAdded = newMembers.some(
+                    (member) => member.id === ctx.botInfo.id
+                );
 
                 if (isBotAdded && !(await this.isGroupAuthorized(ctx))) {
                     return;
@@ -129,9 +140,14 @@ export class TelegramClient {
                 // Don't try to reply if we've left the group or been kicked
                 if (error?.response?.error_code !== 403) {
                     try {
-                        await ctx.reply("An error occurred while processing your message.");
+                        await ctx.reply(
+                            "An error occurred while processing your message."
+                        );
                     } catch (replyError) {
-                        elizaLogger.error("Failed to send error message:", replyError);
+                        elizaLogger.error(
+                            "Failed to send error message:",
+                            replyError
+                        );
                     }
                 }
             }
@@ -181,7 +197,8 @@ export class TelegramClient {
 
     public async stop(): Promise<void> {
         elizaLogger.log("Stopping Telegram bot...");
-        await this.bot.stop();
+        //await 
+            this.bot.stop();
         elizaLogger.log("Telegram bot stopped");
     }
 }

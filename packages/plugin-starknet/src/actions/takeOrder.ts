@@ -1,14 +1,14 @@
 import {
-    Action,
-    ActionExample,
+    type Action,
+    type ActionExample,
     composeContext,
-    Content,
+    type Content,
     generateText,
-    IAgentRuntime,
-    Memory,
+    type IAgentRuntime,
+    type Memory,
     ModelClass,
     settings,
-} from "@ai16z/eliza";
+} from "@elizaos/core";
 import * as fs from "fs";
 import { validateStarknetConfig } from "../environment";
 

@@ -1,20 +1,20 @@
-import { AwsS3Service } from "@ai16z/plugin-node";
+import type { AwsS3Service } from "@elizaos/plugin-node";
 import {
     composeContext,
     elizaLogger,
     generateImage,
     generateText,
     getEmbeddingZeroVector,
-    IAgentRuntime,
-    Memory,
+    type IAgentRuntime,
+    type Memory,
     ModelClass,
     ServiceType,
     stringToUuid,
-} from "@ai16z/eliza";
+} from "@elizaos/core";
 import {
     saveBase64Image,
     saveHeuristImage,
-} from "@ai16z/plugin-image-generation";
+} from "@elizaos/plugin-image-generation";
 import { PublicKey } from "@solana/web3.js";
 import WalletSolana from "../provider/wallet/walletSolana.ts";
 
@@ -128,7 +128,7 @@ export async function createNFTMetadata({
         nftInfo.uri = jsonFilePath.url;
         return {
             ...nftInfo,
-            imageUri: nftImage.url
+            imageUri: nftImage.url,
         };
     }
     return null;

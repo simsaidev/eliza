@@ -1,18 +1,18 @@
 import { Octokit } from "@octokit/rest";
 import { glob } from "glob";
-import simpleGit, { SimpleGit } from "simple-git";
+import simpleGit, { type SimpleGit } from "simple-git";
 import path from "path";
 import fs from "fs/promises";
 import { existsSync } from "fs";
 import { createHash } from "crypto";
 import {
     elizaLogger,
-    AgentRuntime,
-    Client,
-    IAgentRuntime,
+    type AgentRuntime,
+    type Client,
+    type IAgentRuntime,
     knowledge,
     stringToUuid,
-} from "@ai16z/eliza";
+} from "@elizaos/core";
 import { validateGithubConfig } from "./environment";
 
 export interface GitHubConfig {
@@ -57,10 +57,7 @@ export class GitHubClient {
 
         // Clone or pull repository
         if (!existsSync(this.repoPath)) {
-            await this.git.clone(
-                `https://github.com/${this.config.owner}/${this.config.repo}.git`,
-                this.repoPath
-            );
+            await this.cloneRepository();
         } else {
             const git = simpleGit(this.repoPath);
             await git.pull();
@@ -70,6 +67,32 @@ export class GitHubClient {
         if (this.config.branch) {
             const git = simpleGit(this.repoPath);
             await git.checkout(this.config.branch);
+        }
+    }
+
+    private async cloneRepository() {
+        const repositoryUrl = `https://github.com/${this.config.owner}/${this.config.repo}.git`;
+        const maxRetries = 3;
+        let retries = 0;
+
+        while (retries < maxRetries) {
+            try {
+                await this.git.clone(repositoryUrl, this.repoPath);
+                elizaLogger.log(
+                    `Successfully cloned repository from ${repositoryUrl}`
+                );
+                return;
+            } catch {
+                elizaLogger.error(
+                    `Failed to clone repository from ${repositoryUrl}. Retrying...`
+                );
+                retries++;
+                if (retries === maxRetries) {
+                    throw new Error(
+                        `Unable to clone repository from ${repositoryUrl} after ${maxRetries} retries.`
+                    );
+                }
+            }
         }
     }
 

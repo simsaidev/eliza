@@ -96,7 +96,6 @@ TWITTER_DRY_RUN=false
 TWITTER_USERNAME= # アカウントのユーザー名
 TWITTER_PASSWORD= # アカウントのパスワード
 TWITTER_EMAIL= # アカウントのメール
-TWITTER_COOKIES= # アカウントのクッキー
 
 X_SERVER_URL=
 XAI_API_KEY=
@@ -121,7 +120,7 @@ BIRDEYE_API_KEY=
 
 SOL_ADDRESS=So11111111111111111111111111111111111111112
 SLIPPAGE=1
-RPC_URL=https://api.mainnet-beta.solana.com
+SOLANA_RPC_URL=https://api.mainnet-beta.solana.com
 HELIUS_API_KEY=
 
 

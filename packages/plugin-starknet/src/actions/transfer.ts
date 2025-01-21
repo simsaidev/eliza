@@ -3,17 +3,17 @@
 
 import {
     type Action,
-    ActionExample,
+    type ActionExample,
     composeContext,
-    Content,
+    type Content,
     elizaLogger,
     generateObjectDeprecated,
-    HandlerCallback,
-    IAgentRuntime,
-    Memory,
+    type HandlerCallback,
+    type IAgentRuntime,
+    type Memory,
     ModelClass,
-    State,
-} from "@ai16z/eliza";
+    type State,
+} from "@elizaos/core";
 import { getStarknetAccount } from "../utils";
 import { ERC20Token } from "../utils/ERC20Token";
 import { validateStarknetConfig } from "../environment";

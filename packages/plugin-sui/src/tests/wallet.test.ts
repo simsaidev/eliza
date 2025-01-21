@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
 import { WalletProvider } from "../providers/wallet.ts";
 
-import { defaultCharacter } from "@ai16z/eliza";
+import { defaultCharacter } from "@elizaos/core";
 import BigNumber from "bignumber.js";
 import { SUI_DECIMALS } from "@mysten/sui/utils";
 import { SuiClient, getFullnodeUrl } from "@mysten/sui/client";
@@ -49,6 +49,11 @@ describe("WalletProvider", () => {
             "gaze throw also reveal kite load tennis tone club cloth chaos picture"
         );
 
+        const suiAccountx = Ed25519Keypair.fromSecretKey(
+            "suiprivkey1qzuw2uvhqz330pwl94rv39jvk93kuvfd4pvdkw9vl922kum80prqvxtlntr"
+        );
+
+        console.log(suiAccountx.toSuiAddress());
 
         // Create new instance of TokenProvider with mocked dependencies
         walletProvider = new WalletProvider(
@@ -72,9 +77,11 @@ describe("WalletProvider", () => {
                 await walletProvider.getFormattedPortfolio(mockedRuntime);
 
             const prices = await walletProvider.fetchPrices();
-            const mistAmountOnChain = await walletProvider.suiClient.getBalance({
-                owner: walletProvider.address,
-            });
+            const mistAmountOnChain = await walletProvider.suiClient.getBalance(
+                {
+                    owner: walletProvider.address,
+                }
+            );
 
             const suiAmount = new BigNumber(mistAmountOnChain.totalBalance)
                 .div(new BigNumber(10).pow(SUI_DECIMALS))

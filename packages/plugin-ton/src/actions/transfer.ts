@@ -1,19 +1,19 @@
 import {
     elizaLogger,
     composeContext,
-    Content,
-    HandlerCallback,
+    type Content,
+    type HandlerCallback,
     ModelClass,
     generateObject,
     type IAgentRuntime,
     type Memory,
     type State,
-} from "@ai16z/eliza";
+} from "@elizaos/core";
 import { z } from "zod";
 
 import {
     initWalletProvider,
-    WalletProvider,
+    type WalletProvider,
     nativeWalletProvider,
 } from "../providers/wallet";
 import { internal } from "@ton/ton";

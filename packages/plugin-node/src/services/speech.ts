@@ -1,17 +1,19 @@
-import { PassThrough, Readable } from "stream";
-import { IAgentRuntime, ISpeechService, ServiceType } from "@ai16z/eliza";
+import { PassThrough } from "stream";
+import { Readable } from "node:stream";
+import { ReadableStream } from "node:stream/web";
+import { type IAgentRuntime, type ISpeechService, ServiceType } from "@elizaos/core";
 import { getWavHeader } from "./audioUtils.ts";
-import { Service } from "@ai16z/eliza";
+import { Service } from "@elizaos/core";
 import { validateNodeConfig } from "../environment.ts";
 import * as Echogarden from "echogarden";
-import { elizaLogger } from "@ai16z/eliza";
+import { elizaLogger } from "@elizaos/core";
 
 function prependWavHeader(
     readable: Readable,
     audioLength: number,
     sampleRate: number,
-    channelCount: number = 1,
-    bitsPerSample: number = 16
+    channelCount = 1,
+    bitsPerSample = 16
 ): Readable {
     const wavHeader = getWavHeader(
         audioLength,
@@ -21,14 +23,14 @@ function prependWavHeader(
     );
     let pushedHeader = false;
     const passThrough = new PassThrough();
-    readable.on("data", function (data) {
+    readable.on("data", (data) => {
         if (!pushedHeader) {
             passThrough.push(wavHeader);
             pushedHeader = true;
         }
         passThrough.push(data);
     });
-    readable.on("end", function () {
+    readable.on("end", () => {
         passThrough.end();
     });
     return passThrough;
@@ -113,7 +115,9 @@ async function textToSpeech(runtime: IAgentRuntime, text: string) {
                 status === 401 &&
                 errorBody.detail?.status === "quota_exceeded"
             ) {
-                console.log("ElevenLabs quota exceeded, falling back to VITS");
+                elizaLogger.log(
+                    "ElevenLabs quota exceeded, falling back to VITS"
+                );
                 throw new Error("QUOTA_EXCEEDED");
             }
 
@@ -123,17 +127,20 @@ async function textToSpeech(runtime: IAgentRuntime, text: string) {
         }
 
         if (response) {
-            const reader = response.body?.getReader();
+            const webStream = ReadableStream.from(
+                response.body as ReadableStream
+            );
+            const reader = webStream.getReader();
+
             const readable = new Readable({
                 read() {
-                    reader && // eslint-disable-line
-                        reader.read().then(({ done, value }) => {
-                            if (done) {
-                                this.push(null);
-                            } else {
-                                this.push(value);
-                            }
-                        });
+                    reader.read().then(({ done, value }) => {
+                        if (done) {
+                            this.push(null);
+                        } else {
+                            this.push(value);
+                        }
+                    });
                 },
             });
 
@@ -142,7 +149,7 @@ async function textToSpeech(runtime: IAgentRuntime, text: string) {
                     .getSetting("ELEVENLABS_OUTPUT_FORMAT")
                     .startsWith("pcm_")
             ) {
-                const sampleRate = parseInt(
+                const sampleRate = Number.parseInt(
                     runtime.getSetting("ELEVENLABS_OUTPUT_FORMAT").substring(4)
                 );
                 const withHeader = prependWavHeader(
@@ -172,12 +179,12 @@ async function textToSpeech(runtime: IAgentRuntime, text: string) {
 
             let wavStream: Readable;
             if (audio instanceof Buffer) {
-                console.log("audio is a buffer");
+                elizaLogger.log("audio is a buffer");
                 wavStream = Readable.from(audio);
             } else if ("audioChannels" in audio && "sampleRate" in audio) {
-                console.log("audio is a RawAudio");
+                elizaLogger.log("audio is a RawAudio");
                 const floatBuffer = Buffer.from(audio.audioChannels[0].buffer);
-                console.log("buffer length: ", floatBuffer.length);
+                elizaLogger.log("buffer length: ", floatBuffer.length);
 
                 // Get the sample rate from the RawAudio object
                 const sampleRate = audio.sampleRate;
@@ -216,12 +223,12 @@ async function textToSpeech(runtime: IAgentRuntime, text: string) {
 async function processVitsAudio(audio: any): Promise<Readable> {
     let wavStream: Readable;
     if (audio instanceof Buffer) {
-        console.log("audio is a buffer");
+        elizaLogger.log("audio is a buffer");
         wavStream = Readable.from(audio);
     } else if ("audioChannels" in audio && "sampleRate" in audio) {
-        console.log("audio is a RawAudio");
+        elizaLogger.log("audio is a RawAudio");
         const floatBuffer = Buffer.from(audio.audioChannels[0].buffer);
-        console.log("buffer length: ", floatBuffer.length);
+        elizaLogger.log("buffer length: ", floatBuffer.length);
 
         const sampleRate = audio.sampleRate;
         const floatArray = new Float32Array(floatBuffer.buffer);

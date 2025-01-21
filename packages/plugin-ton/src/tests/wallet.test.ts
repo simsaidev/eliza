@@ -1,10 +1,18 @@
-import { defaultCharacter } from "@ai16z/eliza";
+import { defaultCharacter } from "@elizaos/core";
 
-import { describe, it, vi, expect, beforeAll, beforeEach, afterEach } from "vitest";
+import {
+    describe,
+    it,
+    vi,
+    expect,
+    beforeAll,
+    beforeEach,
+    afterEach,
+} from "vitest";
 import BigNumber from "bignumber.js";
 import { WalletProvider } from "../providers/wallet";
 
-import { mnemonicNew, mnemonicToPrivateKey, KeyPair } from "@ton/crypto";
+import { mnemonicNew, mnemonicToPrivateKey, type KeyPair } from "@ton/crypto";
 
 // Mock NodeCache
 vi.mock("node-cache", () => {
@@ -67,14 +75,18 @@ describe("Wallet provider", () => {
                 console.error(`Error fetching TON price:`, error);
                 throw error;
             });
-            const nativeTokenBalance = await walletProvider.getWalletBalance()
+            const nativeTokenBalance = await walletProvider
+                .getWalletBalance()
                 .catch((error) => {
                     console.error(`Error fetching TON amount:`, error);
                     throw error;
                 });
 
-            const amount = Number(nativeTokenBalance) / Number(BigInt(1000000000));
-            const totalUsd = new BigNumber(amount.toString()).times(prices.nativeToken.usd);
+            const amount =
+                Number(nativeTokenBalance) / Number(BigInt(1000000000));
+            const totalUsd = new BigNumber(amount.toString()).times(
+                prices.nativeToken.usd
+            );
 
             expect(result).toEqual(
                 `Eliza\nWallet Address: ${walletProvider.getAddress()}\n` +

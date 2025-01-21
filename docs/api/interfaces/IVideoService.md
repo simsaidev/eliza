@@ -1,4 +1,4 @@
-[@ai16z/eliza v0.1.5-alpha.5](../index.md) / IVideoService
+[@elizaos/core v0.1.7](../index.md) / IVideoService
 
 # Interface: IVideoService
 
@@ -24,7 +24,7 @@
 
 #### Defined in
 
-[packages/core/src/types.ts:1009](https://github.com/ai16z/eliza/blob/main/packages/core/src/types.ts#L1009)
+[packages/core/src/types.ts:1090](https://github.com/elizaOS/eliza/blob/main/packages/core/src/types.ts#L1090)
 
 ## Methods
 
@@ -48,9 +48,9 @@ Add abstract initialize method that must be implemented by derived classes
 
 #### Defined in
 
-[packages/core/src/types.ts:1014](https://github.com/ai16z/eliza/blob/main/packages/core/src/types.ts#L1014)
+[packages/core/src/types.ts:1095](https://github.com/elizaOS/eliza/blob/main/packages/core/src/types.ts#L1095)
 
-***
+---
 
 ### isVideoUrl()
 
@@ -66,9 +66,9 @@ Add abstract initialize method that must be implemented by derived classes
 
 #### Defined in
 
-[packages/core/src/types.ts:1122](https://github.com/ai16z/eliza/blob/main/packages/core/src/types.ts#L1122)
+[packages/core/src/types.ts:1204](https://github.com/elizaOS/eliza/blob/main/packages/core/src/types.ts#L1204)
 
-***
+---
 
 ### fetchVideoInfo()
 
@@ -84,9 +84,9 @@ Add abstract initialize method that must be implemented by derived classes
 
 #### Defined in
 
-[packages/core/src/types.ts:1123](https://github.com/ai16z/eliza/blob/main/packages/core/src/types.ts#L1123)
+[packages/core/src/types.ts:1205](https://github.com/elizaOS/eliza/blob/main/packages/core/src/types.ts#L1205)
 
-***
+---
 
 ### downloadVideo()
 
@@ -102,9 +102,9 @@ Add abstract initialize method that must be implemented by derived classes
 
 #### Defined in
 
-[packages/core/src/types.ts:1124](https://github.com/ai16z/eliza/blob/main/packages/core/src/types.ts#L1124)
+[packages/core/src/types.ts:1206](https://github.com/elizaOS/eliza/blob/main/packages/core/src/types.ts#L1206)
 
-***
+---
 
 ### processVideo()
 
@@ -122,4 +122,4 @@ Add abstract initialize method that must be implemented by derived classes
 
 #### Defined in
 
-[packages/core/src/types.ts:1125](https://github.com/ai16z/eliza/blob/main/packages/core/src/types.ts#L1125)
+[packages/core/src/types.ts:1207](https://github.com/elizaOS/eliza/blob/main/packages/core/src/types.ts#L1207)

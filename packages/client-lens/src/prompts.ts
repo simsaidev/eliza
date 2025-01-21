@@ -1,9 +1,9 @@
 import {
-    Character,
+    type Character,
     messageCompletionFooter,
     shouldRespondFooter,
-} from "@ai16z/eliza";
-import { AnyPublicationFragment } from "@lens-protocol/client";
+} from "@elizaos/core";
+import type { AnyPublicationFragment } from "@lens-protocol/client";
 
 export const formatPublication = (publication: AnyPublicationFragment) => {
     return `ID: ${publication.id}

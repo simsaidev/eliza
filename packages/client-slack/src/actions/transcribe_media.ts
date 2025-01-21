@@ -2,18 +2,18 @@ import {
     composeContext,
     generateText,
     parseJSONObjectFromText,
-} from "@ai16z/eliza";
+} from "@elizaos/core";
 import {
-    Action,
-    ActionExample,
-    Content,
-    HandlerCallback,
-    Handler,
-    IAgentRuntime,
-    Memory,
+    type Action,
+    type ActionExample,
+    type Content,
+    type HandlerCallback,
+    type Handler,
+    type IAgentRuntime,
+    type Memory,
     ModelClass,
-    State,
-} from "@ai16z/eliza";
+    type State,
+} from "@elizaos/core";
 
 export const transcriptionTemplate = `# Transcription of media file
 {{mediaTranscript}}

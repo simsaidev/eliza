@@ -1,4 +1,4 @@
-[@ai16z/eliza v0.1.5-alpha.5](../index.md) / getEmbeddingZeroVector
+[@elizaos/core v0.1.7](../index.md) / getEmbeddingZeroVector
 
 # Function: getEmbeddingZeroVector()
 
@@ -10,4 +10,4 @@
 
 ## Defined in
 
-[packages/core/src/embedding.ts:118](https://github.com/ai16z/eliza/blob/main/packages/core/src/embedding.ts#L118)
+[packages/core/src/embedding.ts:133](https://github.com/elizaOS/eliza/blob/main/packages/core/src/embedding.ts#L133)

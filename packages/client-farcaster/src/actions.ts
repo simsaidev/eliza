@@ -1,5 +1,5 @@
 import type { FarcasterClient } from "./client";
-import type { Content, IAgentRuntime, Memory, UUID } from "@ai16z/eliza";
+import type { Content, IAgentRuntime, Memory, UUID } from "@elizaos/core";
 import type { Cast, CastId, Profile } from "./types";
 import { createCastMemory } from "./memory";
 import { splitPostContent } from "./utils";
@@ -50,6 +50,7 @@ export async function sendCast({
         cast,
         memory: createCastMemory({
             roomId,
+            senderId: runtime.agentId,
             runtime,
             cast,
         }),

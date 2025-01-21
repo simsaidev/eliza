@@ -1,47 +1,48 @@
 import {
-    Content,
-    HandlerCallback,
-    IAgentRuntime,
-    Memory,
+    type Content,
+    type HandlerCallback,
+    type IAgentRuntime,
+    type Memory,
     ModelClass,
     ServiceType,
-    State,
-    UUID,
+    type State,
+    type UUID,
     composeContext,
+    composeRandomUser,
     elizaLogger,
     getEmbeddingZeroVector,
     generateMessageResponse,
     stringToUuid,
     generateShouldRespond,
-    ITranscriptionService,
-    ISpeechService,
-} from "@ai16z/eliza";
+    type ITranscriptionService,
+    type ISpeechService,
+} from "@elizaos/core";
 import {
-    AudioPlayer,
-    AudioReceiveStream,
+    type AudioPlayer,
+    type AudioReceiveStream,
     NoSubscriberBehavior,
     StreamType,
-    VoiceConnection,
+    type VoiceConnection,
     VoiceConnectionStatus,
     createAudioPlayer,
     createAudioResource,
-    getVoiceConnection,
+    getVoiceConnections,
     joinVoiceChannel,
     entersState,
 } from "@discordjs/voice";
 import {
-    BaseGuildVoiceChannel,
+    type BaseGuildVoiceChannel,
     ChannelType,
-    Client,
-    Guild,
-    GuildMember,
-    VoiceChannel,
-    VoiceState,
+    type Client,
+    type Guild,
+    type GuildMember,
+    type VoiceChannel,
+    type VoiceState,
 } from "discord.js";
 import EventEmitter from "events";
 import prism from "prism-media";
-import { Readable, pipeline } from "stream";
-import { DiscordClient } from "./index.ts";
+import { type Readable, pipeline } from "stream";
+import type { DiscordClient } from "./index.ts";
 import {
     discordShouldRespondTemplate,
     discordVoiceHandlerTemplate,
@@ -56,8 +57,8 @@ export class AudioMonitor {
     private readable: Readable;
     private buffers: Buffer[] = [];
     private maxSize: number;
-    private lastFlagged: number = -1;
-    private ended: boolean = false;
+    private lastFlagged = -1;
+    private ended = false;
 
     constructor(
         readable: Readable,
@@ -138,7 +139,7 @@ export class AudioMonitor {
 }
 
 export class VoiceManager extends EventEmitter {
-    private processingVoice: boolean = false;
+    private processingVoice = false;
     private transcriptionTimeout: NodeJS.Timeout | null = null;
     private userStates: Map<
         string,
@@ -194,7 +195,9 @@ export class VoiceManager extends EventEmitter {
     }
 
     async joinChannel(channel: BaseGuildVoiceChannel) {
-        const oldConnection = getVoiceConnection(channel.guildId as string);
+        const oldConnection = this.getVoiceConnection(
+            channel.guildId as string
+        );
         if (oldConnection) {
             try {
                 oldConnection.destroy();
@@ -212,6 +215,7 @@ export class VoiceManager extends EventEmitter {
             adapterCreator: channel.guild.voiceAdapterCreator as any,
             selfDeaf: false,
             selfMute: false,
+            group: this.client.user.id,
         });
 
         try {
@@ -328,6 +332,17 @@ export class VoiceManager extends EventEmitter {
         }
     }
 
+    private getVoiceConnection(guildId: string) {
+        const connections = getVoiceConnections(this.client.user.id);
+        if (!connections) {
+            return;
+        }
+        const connection = [...connections.values()].find(
+            (connection) => connection.joinConfig.guildId === guildId
+        );
+        return connection;
+    }
+
     private async monitorMember(
         member: GuildMember,
         channel: BaseGuildVoiceChannel
@@ -335,7 +350,7 @@ export class VoiceManager extends EventEmitter {
         const userId = member?.id;
         const userName = member?.user?.username;
         const name = member?.user?.displayName;
-        const connection = getVoiceConnection(member?.guild?.id);
+        const connection = this.getVoiceConnection(member?.guild?.id);
         const receiveStream = connection?.receiver.subscribe(userId, {
             autoDestroy: true,
             emitClose: true,
@@ -826,7 +841,7 @@ export class VoiceManager extends EventEmitter {
                 this.runtime.character.templates
                     ?.discordShouldRespondTemplate ||
                 this.runtime.character.templates?.shouldRespondTemplate ||
-                discordShouldRespondTemplate,
+                composeRandomUser(discordShouldRespondTemplate, 2),
         });
 
         const response = await generateShouldRespond({
@@ -1069,7 +1084,7 @@ export class VoiceManager extends EventEmitter {
     }
 
     async handleLeaveChannelCommand(interaction: any) {
-        const connection = getVoiceConnection(interaction.guildId as any);
+        const connection = this.getVoiceConnection(interaction.guildId as any);
 
         if (!connection) {
             await interaction.reply("Not currently in a voice channel.");

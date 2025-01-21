@@ -1,3 +1,5 @@
 # Inspiration
 
-WIP
+![](/img/funnel.jpg)
+
+![](/img/journey.jpg)
